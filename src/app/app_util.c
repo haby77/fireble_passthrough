@@ -432,6 +432,9 @@ uint16_t app_get_local_service_flag(void)
     srv_flag |= BLE_QPPS_SERVER_BIT;
 #endif
 
+#ifdef CFG_PRF_FIREBLE
+	srv_flag |= BLE_FIREBLE_SERVER_BIT;
+#endif
     return srv_flag;
 }
 #endif
@@ -704,6 +707,13 @@ uint8_t app_get_client_service_status(uint8_t idx, uint16_t uuid)
             enabled = app_rscpc_env[idx].enabled;;
             break;
 #endif
+				
+#ifdef CFG_PRF_FIREBLE
+				case FIREBLE_SVC_PRIVATE_UUID:
+					enabled = app_fireble_env[idx].enabled;
+					break;
+#endif				
+				
         default:
             break;
     }
@@ -923,6 +933,11 @@ void app_create_server_service_DB(void)
 #endif
     app_qpps_create_db(app_qpps_env->tx_char_num);
 #endif
+
+#ifdef CFG_PRF_FIREBLE
+	app_fireble_create_db();
+#endif		
+
 }
 #endif
 
@@ -1165,6 +1180,20 @@ void app_enable_server_service(uint8_t enabled, uint16_t conhdl)
         app_qpps_env->enabled = false;
     }
 #endif
+		
+#ifdef CFG_PRF_FIREBLE
+    if (enabled == true)
+    {
+        app_fireble_env->conhdl = conhdl;
+        app_fireble_enable_req(conhdl, PERM_RIGHT_ENABLE, PRF_CON_NORMAL, PRF_CLI_START_NTF, 0);
+        app_fireble_env->enabled = true;
+    }
+    else if (app_fireble_env->enabled == true)
+    {
+        app_fireble_env->enabled = false;
+    }
+#endif		
+		
 }
 #endif
 

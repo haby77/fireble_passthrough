@@ -211,7 +211,12 @@
 #if (BLE_ANCS_NC)
 #include "ancsc_task.h"
 #endif // (BLE_ANCS_NC)
- 
+
+#ifdef CFG_PRF_FIREBLE
+#include "fireble.h"
+#include "fireble_task.h"
+#endif // (fireble)
+
 #endif /* (BLE_ATTS || BLE_ATTC) */
 /*
  * LOCAL FUNCTIONS DEFINITIONS
@@ -1358,6 +1363,14 @@ void prf_dispatch_disconnect(uint8_t status, uint8_t reason, uint16_t conhdl, ui
         gap_send_discon_cmp_evt(status, reason, conhdl, prf_task_id);
     }
     #endif // (BLE_ANCS_NC)
+		
+	#ifdef CFG_PRF_FIREBLE
+    if (ke_state_get(TASK_FIREBLE) == FIREBLE_CONNECTED)
+    {
+        gap_send_discon_cmp_evt(status, reason, conhdl, TASK_FIREBLE);
+    }
+	#endif		
+		
 }
 
 void prf_init(void)
@@ -1501,6 +1514,10 @@ void prf_init(void)
     #if (BLE_CSC_SENSOR)
     cscps_init();
     #endif // (BLE_CSC_SENSOR)
+		
+		#ifdef CFG_PRF_FIREBLE
+		fireble_init();
+		#endif // (BLE_FIREBLE)		
 
     #if (BLE_OTA_SERVER)
     if(OTA_STATUS_OK != otas_init(OTAS_FW2_ADDRESS, OTA_ENABLE_ENCRYPT, OTAS_DECRYPT_KEY))

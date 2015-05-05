@@ -114,12 +114,12 @@ void pwm_io_config(enum PWM_CH ch)
 {
 	if(ch == PWM_CH0)
 	{
-    syscon_SetPMCR1(QN_SYSCON, P27_PWM0_PIN_CTRL);//P2.7 pwm0
+    syscon_SetPMCR1WithMask(QN_SYSCON,P27_MASK_PIN_CTRL, P27_PWM0_PIN_CTRL);//P2.7 pwm0
 		gpio_pull_set(GPIO_P27, GPIO_PULL_UP);
 	}
 	else if(ch == PWM_CH1)
 	{
-		syscon_SetPMCR1(QN_SYSCON, P26_PWM1_PIN_CTRL);//P2.6 pwm1
+		syscon_SetPMCR1WithMask(QN_SYSCON,P26_MASK_PIN_CTRL, P26_PWM1_PIN_CTRL);//P2.6 pwm1
 		gpio_pull_set(GPIO_P26, GPIO_PULL_UP);
 	}
 }
@@ -213,7 +213,7 @@ int ble_pwm( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 		//pwm disable
 		else if(parm_num == 1)
 		{
-				if(pcCommandString[commpare_length + 2] == '0')
+			if(pcCommandString[commpare_length + 2] == '0')
 			{
 				pwm_enable(PWM_CH0, MASK_DISABLE);
 			}
@@ -254,21 +254,9 @@ int ble_i2c( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 	uint8_t i2c_addr ;
 	uint8_t i2c_reg  ;
 	uint8_t i2c_data;
-	
-//  uint8_t parm_num = at_get_parameters_numbers((const uint8_t*)pcCommandString + commpare_length + 2);
-//	QPRINTF("parm_num:%d\r\n",parm_num);
 
 	if(pcCommandString[commpare_length+1] == '=')
 	{
-//		for(uint8_t a=0;a < parm_num ;a++)
-//		{
-//			QPRINTF("a=%d:\r\n",a);
-//			pcom = at_get_parameter((const int8_t*)pcCommandString + commpare_length + 2, a, &pxParameterStringLength);
-//			QPRINTF("ParameterLength:%d \r\n",pxParameterStringLength);
-//			put_char((const int8_t *)pcom,pxParameterStringLength);
-//			QPRINTF("\r\n");
-//		}
-		
 		//i2c_addr
 		pcom = at_get_parameter((const int8_t*)pcCommandString + commpare_length + 2, 1, &pxParameterStringLength);
 		if(pxParameterStringLength > 0)
@@ -321,11 +309,7 @@ int ble_i2c( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 				{
 					goto pram_err;
 				}
-				
-//				//???
-//				QPRINTF("i2c_addr:%x \r\n",i2c_addr);
-//				QPRINTF("i2c_reg :%x \r\n",i2c_reg );
-//				QPRINTF("i2c_data:%x \r\n",i2c_data);
+
 				I2C_BYTE_WRITE(i2c_addr, i2c_reg, i2c_data);
 				if(!i2c_is_finish())
 				{
@@ -349,6 +333,125 @@ pram_err:
 	return sprintf((char*)pcWriteBuffer,"ERR\r\n");
 }
 
+int ble_gpio( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
+{
+	const int8_t *pcom;
+	uint32_t pxParameterStringLength;
+	uint8_t len;
+	
+	enum gpio_pin pin;
+	enum gpio_level level;
+	uint8_t gpio_num;
+	
+	
+	pcom = at_get_parameter((const int8_t*)pcCommandString + commpare_length + 2, 0, &pxParameterStringLength);
+	if(pxParameterStringLength > 0)
+	{
+		gpio_num = at_HEXstringToNum((const uint8_t *)pcom, pxParameterStringLength);
+		switch(gpio_num)
+		{
+			case 0:
+				pin = GPIO_P10;
+				break;
+			case 1:
+				pin = GPIO_P11;
+				break;
+			case 2:
+				pin = GPIO_P12;
+				break;
+			case 3:
+				pin = GPIO_P13;
+				break;
+			case 4:
+				pin = GPIO_P23;
+				break;
+			case 5:
+				pin = GPIO_P24;
+				break;
+			case 6:
+				pin = GPIO_P26;
+				break;
+			case 7:
+				pin = GPIO_P27;
+				break;
+			default:
+				goto pram_err;
+//				break;
+		}
+
+		uint32_t x = pin;
+    int n = 0;
+    if (x == 0) n = 32;
+    if ((x & 0x0000FFFF) == 0) { n += 16; x >>= 16; }
+    if ((x & 0x000000FF) == 0) { n +=  8; x >>=  8; }
+    if ((x & 0x0000000F) == 0) { n +=  4; x >>=  4; }
+    if ((x & 0x00000003) == 0) { n +=  2; x >>=  2; }
+    if ((x & 0x00000001) == 0) { n +=  1; }
+			
+    if (n < 16) 
+    {
+			syscon_SetPMCR0WithMask(QN_SYSCON,0x03 << n, 0 << n);
+    }
+    else 
+    {
+			syscon_SetPMCR1WithMask(QN_SYSCON,0x03 << (n-16), 0 << (n-16));
+    }
+	}
+	else
+	{
+		goto pram_err;
+	}
+	if(pcCommandString[commpare_length+1] == '?' )
+	{
+		gpio_set_direction(pin, GPIO_INPUT);
+		if(gpio_read_pin(pin) == GPIO_LOW)
+		{
+			gpio_num = 0;
+		}
+		else
+		{
+			gpio_num = 1;
+		}
+		len = commpare_length+1;
+		memcpy(pcWriteBuffer, pcCommandString, len);
+		len += sprintf((char *)pcWriteBuffer + len,":%d\r\nOK\r\n",gpio_num);	
+		return len;
+	}
+	else if(pcCommandString[commpare_length+1] == '=')
+	{
+		pcom = at_get_parameter((const int8_t*)pcCommandString + commpare_length + 2, 1, &pxParameterStringLength);
+		if(pxParameterStringLength == 1)
+		{
+			if(pcom[0] == '0')
+			{
+				level = GPIO_LOW;
+			}
+			else if (pcom[0] == '1')
+			{
+				level = GPIO_HIGH;
+			}
+			else
+			{
+				goto pram_err;
+			}
+			gpio_set_direction(pin, GPIO_OUTPUT);
+			gpio_write_pin(pin, level);
+		}	
+		else
+		{
+			goto pram_err;		
+		}
+
+	}
+	else
+	{
+		goto pram_err;
+	}
+	return sprintf((char*)pcWriteBuffer,"OK\r\n");	
+	
+pram_err:	
+	return sprintf((char*)pcWriteBuffer,"ERR\r\n");
+}
 const At_CommandInput command[] =
 {	
 	{
@@ -374,12 +477,15 @@ const At_CommandInput command[] =
 	{
 		"PWM",
 		 ble_pwm
-	}
-	,
+	},
 	{
 		"I2C",
 		 ble_i2c
-	}		
+	},
+	{
+		"GPIO",
+		 ble_gpio
+	}	
 };
 
 

@@ -386,6 +386,13 @@ static void app_env_init(void)
 #endif
 }
 
+#ifdef CFG_PRF_FIREBLE
+static void app_fireble_init(void)
+{
+    app_fireble_env->features = FIREBLE_OUT_CH_LOC_SUP | FIREBLE_IN_CH_LOC_SUP;
+    app_fireble_env->conhdl = 0xFFFF;
+}
+#endif
 /**
  ****************************************************************************************
  * @brief Initialize the application task environment.
@@ -448,6 +455,11 @@ void app_init(void)
 #endif
     app_eaci_init();
 #endif
+
+#ifdef CFG_PRF_FIREBLE
+	app_fireble_init();
+#endif		
+		
 #if (QN_WORK_MODE != WORK_MODE_SOC)
     app_gap_reset_req();
 #endif

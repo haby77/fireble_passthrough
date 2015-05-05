@@ -237,12 +237,12 @@
             <Ro1Chk>0</Ro1Chk>
             <Ro2Chk>0</Ro2Chk>
             <Ro3Chk>0</Ro3Chk>
-            <Ir1Chk>1</Ir1Chk>
+            <Ir1Chk>0</Ir1Chk>
             <Ir2Chk>0</Ir2Chk>
             <Ra1Chk>0</Ra1Chk>
             <Ra2Chk>0</Ra2Chk>
             <Ra3Chk>0</Ra3Chk>
-            <Im1Chk>1</Im1Chk>
+            <Im1Chk>0</Im1Chk>
             <Im2Chk>0</Im2Chk>
             <OnChipMemories>
               <Ocm1>
@@ -363,7 +363,7 @@
               <MiscControls>--C99</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\src\fw;..\..\src\profiles;..\..\src\profiles\qpp;..\..\src\profiles\qpp\qpps;..\..\src\profiles\dis\diss;..\..\src\app;..\..\src\app\gap;..\..\src\app\gatt;..\..\src\app\smp;..\..\src\app\qpps;..\..\src\app\diss;..\..\src\cmsis;..\..\src\driver;..\..\src\lib;..\..\src\qnevb;..\src;..\..\src\app\otas;..\..\src\profiles\ota\otas</IncludePath>
+              <IncludePath>..\..\src\fw;..\..\src\profiles;..\..\src\profiles\qpp;..\..\src\profiles\qpp\qpps;..\..\src\profiles\dis\diss;..\..\src\app;..\..\src\app\gap;..\..\src\app\gatt;..\..\src\app\smp;..\..\src\app\qpps;..\..\src\app\diss;..\..\src\cmsis;..\..\src\driver;..\..\src\lib;..\..\src\qnevb;..\src;..\..\src\app\otas;..\..\src\profiles\ota\otas;..\src\fireble;..\src\fireble\app;..\src\fireble\profile</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -502,16 +502,6 @@
               <FilePath>..\..\src\app\smp\app_smp_task.c</FilePath>
             </File>
             <File>
-              <FileName>app_diss.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\app\diss\app_diss.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_diss_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\app\diss\app_diss_task.c</FilePath>
-            </File>
-            <File>
               <FileName>app_qpps.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\app\qpps\app_qpps.c</FilePath>
@@ -541,16 +531,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\profiles\prf_utils.c</FilePath>
             </File>
-            <File>
-              <FileName>diss.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\profiles\dis\diss\diss.c</FilePath>
-            </File>
-            <File>
-              <FileName>diss_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\profiles\dis\diss\diss_task.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -575,11 +555,6 @@
               <FileName>syscon.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\driver\syscon.c</FilePath>
-            </File>
-            <File>
-              <FileName>wdt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\driver\wdt.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
@@ -634,12 +609,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>retarget</GroupName>
+          <GroupName>fireble</GroupName>
           <Files>
             <File>
-              <FileName>retarget.c</FileName>
+              <FileName>app_fireble.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\retarget\retarget.c</FilePath>
+              <FilePath>..\src\fireble\app\app_fireble.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_fireble_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\fireble\app\app_fireble_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>fireble.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\fireble\profile\fireble.c</FilePath>
+            </File>
+            <File>
+              <FileName>fireble_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\fireble\profile\fireble_task.c</FilePath>
             </File>
           </Files>
         </Group>

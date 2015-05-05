@@ -41,7 +41,7 @@
 #define BLE_AN_SERVER_BIT           0x2000
 #define BLE_RSCP_SERVER_BIT         0x4000
 #define BLE_QPPS_SERVER_BIT         0x8000
-
+#define BLE_FIREBLE_SERVER_BIT      0x8000
 // Advertising data FLAG
 #define AD_TYPE_NAME_BIT            0x0001
 #define AD_TYPE_16bitUUID_BIT       0x0002

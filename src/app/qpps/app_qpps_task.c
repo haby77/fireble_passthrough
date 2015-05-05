@@ -255,36 +255,6 @@ int app_qpps_data_ind_handler(ke_msg_id_t const msgid,
     return (KE_MSG_CONSUMED);
 }
 
-/// @cond
-/*
- ****************************************************************************************
- * @brief Send test data.
- *
- * @param[in] max The maximum times used to send data
- *
- ****************************************************************************************
- */
-//static void app_test_send_data(uint8_t max)
-//{
-//    uint8_t cnt;
-
-//    for (cnt = 0; (max != 0) && cnt < app_qpps_env->tx_char_num; cnt++)
-//    {
-//        if ((app_qpps_env->char_status >> cnt) & QPPS_VALUE_NTF_CFG)
-//        {
-//            static uint8_t val[] = {0, '0', '1', '2','3','4','5','6','7','8','9','8','7','6','5','4','3','2','1','0'};
-
-//            // Increment the first byte for test 
-//            val[0]++;
-
-//            max--;
-//            // Allow next notify until confirmation received in this characteristic
-//            app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << cnt);
-//            app_qpps_data_send(app_qpps_env->conhdl, cnt, sizeof(val), val);
-//        }
-//    }
-//}
-
 /// @endcond
 
 #endif // BLE_QPP_SERVER

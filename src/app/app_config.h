@@ -709,6 +709,13 @@
         #define BLE_ATTS            0
     #endif // defined(CFG_ATTS)
 
+		#if defined(CFG_PRF_FIREBLE)
+			#define TASK_FIREBLE 		  CFG_TASK_FIREBLE 
+			#define FIREBLE _DB_SIZE		  500
+		#else
+			#define FIREBLE _DB_SIZE		  0
+		#endif 
+
 #elif (BLE_OBSERVER || BLE_BROADCASTER)
 
     /// Proximity Profile Monitor Role

@@ -586,6 +586,14 @@ const struct ke_msg_handler app_default_state[] =
     {ANPS_CMP_EVT,                          (ke_msg_func_t) app_anps_cmp_evt_handler},
 #endif
 
+#ifdef CFG_PRF_FIREBLE
+    {FIREBLE_DISABLE_IND,                    (ke_msg_func_t) app_fireble_disable_ind_handler},
+    {FIREBLE_ERROR_IND,                      (ke_msg_func_t) app_fireble_error_ind_handler},
+    {FIREBLE_SEND_DATA_CFM,            		   (ke_msg_func_t) app_fireble_send_data_cfm_handler},
+    {FIREBLE_RECEIVE_DATA_IND,               (ke_msg_func_t) app_fireble_receive_data_ind_handler},
+    {FIREBLE_CREATE_DB_CFM,                  (ke_msg_func_t) app_fireble_create_db_cfm_handler},
+#endif		
+		
 #if BLE_QPP_CLIENT
     {QPPC_ENABLE_CFM,                   	(ke_msg_func_t) app_qppc_enable_cfm_handler},
     {QPPC_ERROR_IND,                    	(ke_msg_func_t) app_qppc_error_ind_handler},

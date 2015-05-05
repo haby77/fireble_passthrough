@@ -89,16 +89,16 @@
 #define CFG_DEBUG_UART  QN_UART1
 
 // Using standard lib printf
-#define CFG_STD_PRINTF
+//#define CFG_STD_PRINTF
 
 /// Debug print option
-#define CFG_DBG_PRINT
+//#define CFG_DBG_PRINT
 
 /// Debug trace option
 // #define CFG_DBG_TRACE_MORE
 
 /// Debug information
-#define CFG_DBG_INFO
+//#define CFG_DBG_INFO
 
 /// Maximum connection number
 #define CFG_CON 1
@@ -163,8 +163,8 @@
 // #define CFG_TASK_DISC   TASK_PRF1
 
 ///Device Information Service Server Role
-#define CFG_PRF_DISS
-#define CFG_TASK_DISS   TASK_PRF2
+//#define CFG_PRF_DISS
+//#define CFG_TASK_DISS   TASK_PRF2
 
 ///Blood Pressure Profile Collector Role
 // #define CFG_PRF_BLPC
@@ -237,6 +237,9 @@
 /// OTA Server Role
 #define CFG_PRF_OTAS
 #define CFG_TASK_OTAS   TASK_PRF7
+
+#define CFG_PRF_FIREBLE
+#define CFG_TASK_FIREBLE   TASK_PRF6
 
 #endif
 

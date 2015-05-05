@@ -170,6 +170,10 @@
 #include "app_eapi.h"
 #endif
 
+#ifdef CFG_PRF_FIREBLE
+#include "app_fireble.h"
+#endif
+
 /*
  * TYPE DEFINITIONS
  ****************************************************************************************
@@ -450,6 +454,11 @@ struct app_env_tag
     uint8_t menu_id;
     uint8_t input[0x0F];
 #endif
+
+#ifdef CFG_PRF_FIREBLE
+    struct app_fireble_env_tag fireble_ev;
+#endif
+
 };
 
 /*
