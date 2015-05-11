@@ -582,11 +582,6 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>qn9020b2_lib_peripheral.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>D:\FireBLE\BLE_project\透传\firefly_passthrough\src\lib\keil\qn9020b2_lib_peripheral.lib</FilePath>
-            </File>
-            <File>
               <FileName>qn_ota.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\src\profiles\ota\otas\qn_ota.lib</FilePath>
@@ -595,6 +590,11 @@
               <FileName>qn_qpp.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\src\profiles\qpp\qpps\qn_qpp.lib</FilePath>
+            </File>
+            <File>
+              <FileName>qn9020b2_lib_allroles.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\..\src\lib\keil\qn9020b2_lib_allroles.lib</FilePath>
             </File>
           </Files>
         </Group>

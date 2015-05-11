@@ -162,7 +162,7 @@
 
   <Group>
     <GroupName>startup</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -204,7 +204,7 @@
 
   <Group>
     <GroupName>usr</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -251,7 +251,7 @@
 
   <Group>
     <GroupName>app</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -599,8 +599,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>D:\FireBLE\BLE_project\透传\firefly_passthrough\src\lib\keil\qn9020b2_lib_peripheral.lib</PathWithFileName>
-      <FilenameWithoutPath>qn9020b2_lib_peripheral.lib</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\profiles\ota\otas\qn_ota.lib</PathWithFileName>
+      <FilenameWithoutPath>qn_ota.lib</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -612,8 +612,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\profiles\ota\otas\qn_ota.lib</PathWithFileName>
-      <FilenameWithoutPath>qn_ota.lib</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\profiles\qpp\qpps\qn_qpp.lib</PathWithFileName>
+      <FilenameWithoutPath>qn_qpp.lib</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -625,8 +625,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\profiles\qpp\qpps\qn_qpp.lib</PathWithFileName>
-      <FilenameWithoutPath>qn_qpp.lib</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\lib\keil\qn9020b2_lib_allroles.lib</PathWithFileName>
+      <FilenameWithoutPath>qn9020b2_lib_allroles.lib</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -634,7 +634,7 @@
 
   <Group>
     <GroupName>fireblue_evb</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -663,7 +663,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>34</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
