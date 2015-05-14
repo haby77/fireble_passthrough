@@ -455,6 +455,10 @@ struct app_env_tag
     uint8_t input[0x0F];
 #endif
 
+#if	(defined(CFG_ALL_GPIO_TEST))
+		uint8_t	test_flag;
+#endif
+
 #ifdef CFG_PRF_FIREBLE
     struct app_fireble_env_tag fireble_ev;
 #endif

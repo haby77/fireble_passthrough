@@ -31,6 +31,7 @@
 ///defined it when used SWD Debug,and LED2/LED3 will do not work.
 //#define  CFG_SWD
  
+#define CFG_ALL_GPIO_TEST
 
 
 /// Easy ACI

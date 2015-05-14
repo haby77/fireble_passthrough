@@ -377,7 +377,7 @@
     #if defined(CFG_PRF_QPPS)
         #define BLE_QPP_SERVER      1
 		#define TASK_QPPS     		CFG_TASK_QPPS
-        #define QPPS_DB_SIZE        1400
+        #define QPPS_DB_SIZE        600
     #else
         #define BLE_QPP_SERVER     0
         #define QPPS_DB_SIZE       0
@@ -711,7 +711,7 @@
 
 		#if defined(CFG_PRF_FIREBLE)
 			#define TASK_FIREBLE 		  CFG_TASK_FIREBLE 
-			#define FIREBLE _DB_SIZE		  500
+			#define FIREBLE _DB_SIZE		  700
 		#else
 			#define FIREBLE _DB_SIZE		  0
 		#endif 

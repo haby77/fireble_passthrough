@@ -155,7 +155,7 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
         case GAP_SET_MODE_REQ_CMP_EVT:
             if(APP_IDLE == ke_state_get(TASK_APP))
             {
-								QPRINTF("debug:a!\r\n");
+//								QPRINTF("debug:a!\r\n");
                 usr_led1_set(LED_ON_DUR_ADV_FAST, LED_OFF_DUR_ADV_FAST);
                 ke_timer_set(APP_ADV_INTV_UPDATE_TIMER, TASK_APP, 30 * 100);
 #if (defined(QN_ADV_WDT))
@@ -164,7 +164,7 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
             }
             else if(APP_ADV == ke_state_get(TASK_APP))
             {
-								QPRINTF("debug:b!\r\n");
+//								QPRINTF("debug:b!\r\n");
                 usr_led1_set(LED_ON_DUR_ADV_SLOW, LED_OFF_DUR_ADV_SLOW);
 #if (defined(QN_ADV_WDT))
                 usr_env.adv_wdt_enable = true;
@@ -188,7 +188,7 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 							{
 								if(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW)
 								{
-										QPRINTF("TRAN or_TRAN_IDLE_TO_AT\r\n");
+//										QPRINTF("TRAN or_TRAN_IDLE_TO_AT\r\n");
 										com_env.com_mode = COM_MODE_AT;
 										led_set(2, LED_ON);
 										com_uart_at_rx_start();
@@ -220,13 +220,13 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 									uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
 									if (bit_num >= QPPS_VAL_CHAR_NUM)
 									{		
-										QPRINTF("AT_TO_TRAN\r\n");
+//										QPRINTF("AT_TO_TRAN\r\n");
 										com_env.com_mode = COM_MODE_TRAN;						
 										com_uart_rx_start();
 									}
 									else
 									{
-										QPRINTF("AT_TO_TRAN_IDLE\r\n");
+//										QPRINTF("AT_TO_TRAN_IDLE\r\n");
 										com_env.com_mode = COM_MODE_TRAN_IDLE;
 										uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep		
 									}

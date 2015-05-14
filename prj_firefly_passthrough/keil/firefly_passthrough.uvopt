@@ -587,7 +587,7 @@
 
   <Group>
     <GroupName>lib</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -625,8 +625,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\lib\keil\qn9020b2_lib_allroles.lib</PathWithFileName>
-      <FilenameWithoutPath>qn9020b2_lib_allroles.lib</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\lib\keil\qn9020b2_lib_peripheral.lib</PathWithFileName>
+      <FilenameWithoutPath>qn9020b2_lib_peripheral.lib</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

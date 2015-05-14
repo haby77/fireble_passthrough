@@ -47,7 +47,7 @@ static void SystemIOCfg(void)
                              | P07_GPIO_7_PIN_CTRL
 #else
                              | P06_SW_DAT_PIN_CTRL
-                             | P06_SW_DAT_PIN_CTRL
+                             | P07_SW_CLK_PIN_CTRL
 #endif
 #if !defined(CFG_COM_UART)
                              | P10_GPIO_8_PIN_CTRL
@@ -102,6 +102,17 @@ static void SystemIOCfg(void)
 		syscon_SetPPCR1(QN_SYSCON, 0x2AAAAAAA);
 }
 
+// add pto_test for FS_QN9021,test all GPIO is useable.
+#if defined(CFG_ALL_GPIO_TEST)
+void all_gpio_test(void);
+
+#define	TEST_PIN	(GPIO_P03 | GPIO_P06 | GPIO_P07 | GPIO_P10 | GPIO_P11 | GPIO_P13 | GPIO_P23 | GPIO_P24 | GPIO_P26 | GPIO_P27 | GPIO_P30 | GPIO_P31)
+#define DELAY_TIME		500000
+
+#endif
+
+
+
 /**
  ****************************************************************************************
  * @brief  Setup the microcontroller system.
@@ -142,7 +153,17 @@ void SystemInit(void)
     syscon_set_usart_clk((uint32_t)QN_UART0, __USART_CLK);
     syscon_set_usart_clk((uint32_t)QN_UART1, __USART_CLK);  
     clk32k_enable(__32K_TYPE);
-    
+	 
+#if defined(CFG_ALL_GPIO_TEST)
+		syscon_SetPMCR0(QN_SYSCON,P12_GPIO_10_PIN_CTRL);
+		gpio_init(gpio_interrupt_callback);
+    gpio_pull_set(GPIO_P12, GPIO_PULL_UP);
+    gpio_set_direction_field(GPIO_P12, (uint32_t)GPIO_INPUT);
+		if (gpio_read_pin(GPIO_P12) == GPIO_LOW)
+				app_env.test_flag = TRUE;
+		else
+				app_env.test_flag = FALSE;		
+#endif    
     /*
      **************************
      * IO configuration
@@ -181,6 +202,13 @@ void SystemInit(void)
 #endif
 #endif
 
+#if		(defined(CFG_ALL_GPIO_TEST))
+		if (app_env.test_flag == TRUE)
+		while(1)
+		{
+			all_gpio_test();
+		}	
+#endif
 	
 #if defined(QN_COM_UART)
     uart_init(QN_COM_UART, USARTx_CLK(0), UART_9600);
@@ -194,6 +222,102 @@ void SystemInit(void)
     uart_rx_enable(QN_DEBUG_UART, MASK_ENABLE);
 #endif
 }
+
+#if defined(CFG_ALL_GPIO_TEST)
+void delay_5()
+{
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+		delay(10000);
+	
+}
+
+void all_gpio_test(void)
+{
+		// pin mux
+    syscon_SetPMCR0(QN_SYSCON, P00_UART0_TXD_PIN_CTRL
+                             | P01_GPIO_1_PIN_CTRL
+                             | P02_GPIO_2_PIN_CTRL
+                             | P03_GPIO_3_PIN_CTRL
+                             | P04_GPIO_4_PIN_CTRL
+                             | P05_GPIO_5_PIN_CTRL
+                             | P06_GPIO_6_PIN_CTRL
+                             | P07_GPIO_7_PIN_CTRL
+
+                             | P10_GPIO_8_PIN_CTRL
+                             | P11_GPIO_9_PIN_CTRL
+                             | P12_GPIO_10_PIN_CTRL
+                             | P13_GPIO_11_PIN_CTRL
+                             | P14_GPIO_12_PIN_CTRL
+                             | P15_GPIO_13_PIN_CTRL
+                             | P16_GPIO_14_PIN_CTRL
+                             | P17_UART0_RXD_PIN_CTRL
+                             );
+    syscon_SetPMCR1(QN_SYSCON, P20_GPIO_16_PIN_CTRL
+                             | P21_GPIO_17_PIN_CTRL
+                             | P22_GPIO_18_PIN_CTRL
+                             | P23_GPIO_19_PIN_CTRL
+                             | P24_GPIO_20_PIN_CTRL
+                             | P25_GPIO_21_PIN_CTRL
+                             | P26_GPIO_22_PIN_CTRL
+                             | P27_GPIO_23_PIN_CTRL
+
+                             | P30_GPIO_24_PIN_CTRL
+                             | P31_GPIO_25_PIN_CTRL
+                             | P32_GPIO_26_PIN_CTRL          
+                             | P33_GPIO_27_PIN_CTRL          
+                             | P34_GPIO_28_PIN_CTRL          
+                             | P35_GPIO_29_PIN_CTRL              
+                             | P36_GPIO_30_PIN_CTRL
+                             );
+
+
+    // driver ability
+    syscon_SetPDCR(QN_SYSCON, 0x0); // 0 : low driver, 1 : high driver
+
+    // pin pull ( 00 : High-Z,  01 : Pull-down,  10 : Pull-up,  11 : Reserved )
+    syscon_SetPPCR0(QN_SYSCON, 0xAAAAAAAA);
+    syscon_SetPPCR1(QN_SYSCON, 0xAAAAAAAA);
+		
+		gpio_init(gpio_interrupt_callback);
+		
+		gpio_set_direction_field(TEST_PIN,(uint32_t)GPIO_OUTPUT);
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_LOW);
+				delay_5();
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_HIGH);
+				delay_5();	
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_LOW);
+				delay_5();
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_HIGH);
+				delay_5();	
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_LOW);
+				delay_5();
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_HIGH);
+				delay_5();	
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_LOW);
+				delay_5();
+				gpio_write_pin_field(TEST_PIN,(uint32_t)GPIO_HIGH);
+				delay_5();	
+}
+#endif
+
 
 
 /// @} SYSTEM_CONTROLLER

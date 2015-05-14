@@ -592,9 +592,9 @@
               <FilePath>..\..\src\profiles\qpp\qpps\qn_qpp.lib</FilePath>
             </File>
             <File>
-              <FileName>qn9020b2_lib_allroles.lib</FileName>
+              <FileName>qn9020b2_lib_peripheral.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\src\lib\keil\qn9020b2_lib_allroles.lib</FilePath>
+              <FilePath>..\..\src\lib\keil\qn9020b2_lib_peripheral.lib</FilePath>
             </File>
           </Files>
         </Group>
