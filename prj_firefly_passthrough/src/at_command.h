@@ -3,8 +3,8 @@
 
 #include "app_env.h"
 
-#define SOFTWARE_VERSION	"v1.0"
-#define RELEASE_DATE "2015-04-20"
+#define SOFTWARE_VERSION	"v1.1"
+#define RELEASE_DATE "2015-07-7"
 
 typedef int (*pdCOMMAND_CALLBACK)(const uint8_t * pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length);
 

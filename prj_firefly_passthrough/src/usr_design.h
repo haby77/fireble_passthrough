@@ -55,7 +55,8 @@ extern int app_gap_adv_intv_update_timer_handler(ke_msg_id_t const msgid, void c
 extern void usr_sleep_restore(void);
 extern void usr_button1_cb(void);
 extern int app_button_timer_handler(ke_msg_id_t const msgid, void const *param, ke_task_id_t const dest_id, ke_task_id_t const src_id);
+extern int app_qpps_test_send_timer_handler(ke_msg_id_t const msgid, void const *param, ke_task_id_t const dest_id, ke_task_id_t const src_id);
 extern void usr_init(void);
 extern void gpio_interrupt_callback(enum gpio_pin pin);
-
+extern void usr_led1_set(uint16_t timer_on, uint16_t timer_off);
 #endif

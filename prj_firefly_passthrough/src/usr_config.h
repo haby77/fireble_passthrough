@@ -45,7 +45,10 @@
 #endif
 
 /// Local name
-#define CFG_LOCAL_NAME   "FireBLE Scale"
+#define CFG_LOCAL_NAME   "FireBLE QPPS"
+
+/// Manufacturer Logo
+#define	MANU_LOGO					"FireBLE_PT"
 
 /// DC-DC enable
 #define CFG_DC_DC
@@ -54,7 +57,7 @@
 // #define CFG_32K_RCO
 
 /// NVDS WRTIE SUPPORT
-// #define CFG_NVDS_WRITE
+ #define CFG_NVDS_WRITE
 
 /// Test mode controll pin
 //#define CFG_TEST_CTRL_PIN GPIO_P31
@@ -65,7 +68,7 @@
 #endif
 
 /// Memory retention
-#define CFG_MEM_RETENTION   (MEM_BLOCK1 | MEM_BLOCK2 | MEM_BLOCK3 | MEM_BLOCK4 | MEM_BLOCK6 | MEM_BLOCK7)
+#define CFG_MEM_RETENTION   	MEM_ALL//(MEM_BLOCK1 | MEM_BLOCK2 | MEM_BLOCK3 | MEM_BLOCK4 | MEM_BLOCK6 | MEM_BLOCK7)
 
 /// Deep sleep support
 #define CFG_DEEP_SLEEP
@@ -77,7 +80,7 @@
 #define CFG_BLE_MAX_SLEEP_DUR   0x3e80  // 625us * 0x3e80 = 10s
 
 ///
-#define	CFG_COM_UART										QN_UART0
+#define	CFG_COM_UART										QN_UART1
 
 /// Transport layer UART interface used in network processor mode and controller mode
 #define CFG_HCI_UART                    QN_UART0
@@ -87,19 +90,19 @@
 //#define CFG_HCI_SPI_WR_CTRL_PIN         GPIO_P26
 
 /// Debug information output interface
-#define CFG_DEBUG_UART  QN_UART1
+#define CFG_DEBUG_UART  QN_UART0
 
 // Using standard lib printf
-//#define CFG_STD_PRINTF
+#define CFG_STD_PRINTF
 
 /// Debug print option
-//#define CFG_DBG_PRINT
+#define CFG_DBG_PRINT
 
 /// Debug trace option
 // #define CFG_DBG_TRACE_MORE
 
 /// Debug information
-//#define CFG_DBG_INFO
+#define CFG_DBG_INFO
 
 /// Maximum connection number
 #define CFG_CON 1

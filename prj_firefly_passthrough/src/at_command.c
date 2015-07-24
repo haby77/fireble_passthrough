@@ -1,3 +1,28 @@
+/**
+ ****************************************************************************************
+ *
+ * @file at_command.c
+ *
+ * @brief 
+ *
+ * Copyright (C) Firefly 2015-2016
+ *
+ * $Rev: 1.0 $
+ *
+ ****************************************************************************************
+ */
+ 
+ /**
+ ****************************************************************************************
+ * @addtogroup  USR
+ * @{
+ ****************************************************************************************
+ */
+ 
+ /*
+ * INCLUDE FILES
+ ****************************************************************************************
+ */
 #include "at_command.h"
 #include "app_env.h"
 #include "uart.h"
@@ -6,23 +31,80 @@
 #include "nvds.h"
 #include "pwm.h"
 #include "i2c.h"
-void put_char(const int8_t *pcom,uint32_t len);
 
+/*
+ * MACRO DEFINITIONS
+ ****************************************************************************************
+ */
+#define LED_ON_DUR_ADV_FAST        2
+#define LED_OFF_DUR_ADV_FAST       (uint16_t)((GAP_ADV_FAST_INTV2*0.625)/10)
+#define LED_ON_DUR_ADV_SLOW        2
+#define LED_OFF_DUR_ADV_SLOW       (uint16_t)((GAP_ADV_SLOW_INTV*0.625)/10)
+#define LED_ON_DUR_CON          0xffff
+#define LED_OFF_DUR_CON                   0
+#define LED_ON_DUR_IDLE                   0
+#define LED_OFF_DUR_IDLE                  0xffff
+
+
+/*
+ * LOCAL VARIABLE DEFINITIONS
+ ****************************************************************************************
+ */
+// for debug
+static void put_char(const int8_t *pcom,uint32_t len);
+
+/*
+ * GLOBAL VARIABLE DEFINITIONS
+ ****************************************************************************************
+ */
 extern uint8_t baudrate;
+uint8_t i2c_buff[4];
+extern bool i2c_is_finish(void);
+
+
+/*
+****************************************************************************************
+* @brief             set_baudrate
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @return            None
+* @description       ÉèÖÃÄ£¿é²¨ÌØÂÊ£¬¸ñÊ½£ºAT+BAUDx,xÈ¡ÖµÎª0~16¡AAT+BAUD£ ºÍAT+BAUD±íÊ¾²éÑ¯µ±Ç°²¨ÌØÂÊ
+*										UART_1200     = 0,     //!< Set baud rate to 1200 when UART clock is 8MHz //
+*    								UART_2400     = 1,     //!< Set baud rate to 2400 when UART clock is 8MHz //
+*    								UART_4800     = 2,     //!< Set baud rate to 4800 when UART clock is 8MHz //
+*    								UART_9600     = 3,     //!< Set baud rate to 9600 when UART clock is 8MHz //
+*    								UART_14400    = 4,     //!< Set baud rate to 14400 when UART clock is 8MHz //
+*    								UART_19200    = 5,     //!< Set baud rate to 19200 when UART clock is 8MHz //
+*    								UART_28800    = 6,     //!< Set baud rate to 28800 when UART clock is 8MHz //
+*    								UART_38400    = 7,     //!< Set baud rate to 38400 when UART clock is 8MHz //
+*    								UART_57600    = 8,     //!< Set baud rate to 57600 when UART clock is 8MHz //
+*    								UART_64000    = 9,     //!< Set baud rate to 64000 when UART clock is 8MHz //
+*    								UART_76800    = 10,    //!< Set baud rate to 76800 when UART clock is 8MHz //
+*    								UART_115200   = 11,    //!< Set baud rate to 115200 when UART clock is 8MHz //
+*    								UART_128000   = 12,    //!< Set baud rate to 128000 when UART clock is 8MHz //
+*    								UART_230400   = 13,    //!< Set baud rate to 230400 when UART clock is 8MHz //
+*    								UART_345600   = 14,    //!< Set baud rate to 345600 when UART clock is 8MHz //
+*    								UART_460800   = 15,    //!< Set baud rate to 460800 when UART clock is 8MHz //
+*    								UART_500000   = 16,    //!< Set baud rate to 500000 when UART clock is 8MHz //
+*****************************************************************************************/
 int set_baudrate( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 	const int8_t *pcom;
 	uint32_t pxParameterStringLength;
 	int len;
 	
+	//the baudrate inquire with the follow byte is "?" or "\0"
 	if(pcCommandString[commpare_length+1] == '?' || pcCommandString[commpare_length+1] == '\0')
 	{
 		len = commpare_length+1;
 		memcpy(pcWriteBuffer, pcCommandString, len);
 		len += sprintf((char *)pcWriteBuffer + len,":%d\r\nOK\r\n",baudrate);	
 	}
+	//set baudrate  with the follow byte is "="
 	else if(pcCommandString[commpare_length+1] == '=')
 	{
+		// get parameter and fill into *pcom
 		pcom = at_get_parameter((const int8_t*)pcCommandString + commpare_length + 2, 0, &pxParameterStringLength);
 		if(pxParameterStringLength != 0)
 		{
@@ -46,6 +128,15 @@ int set_baudrate( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,u
 	return len;
 }
 
+/*
+****************************************************************************************
+* @brief           	 get_version
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @return            None
+* @description       »ñÈ¡°æ±¾ºÅ£¬ÃüÁî¸ñÊ½£ºAT+VERSION OR AT+VERSION?
+*****************************************************************************************/
 int get_version( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 	int len;
@@ -55,6 +146,15 @@ int get_version( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,ui
 	return len;
 }
 
+/*
+****************************************************************************************
+* @brief             get_name
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @return            None
+* @description       »ñÈ¡Éè±¸Ãû£¬ÃüÁî¸ñÊ½£ºAT+NAME OR AT+NAME?
+*****************************************************************************************/
 int get_name( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 		nvds_tag_len_t name_length = 31 - 5; 
@@ -78,12 +178,30 @@ int get_name( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint3
 	return len;
 }
 
+/*
+****************************************************************************************
+* @brief             ble_discon
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @return            None
+* @description       ¶Ï¿ªµ±Ç°Á¬½Ó£¬ÃüÁî¸ñÊ½£ºAT+DISCON
+*****************************************************************************************/
 int ble_discon( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 	app_gap_discon_req(0);
 	return sprintf((char*)pcWriteBuffer,"OK\r\n");
 }
 
+/*
+****************************************************************************************
+* @brief             ble_adv
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @return            None
+* @description       ¿ªÆô»òÕß¹Ø±Õ¹ã²¥£¬ÃüÁî¸ñÊ½£ºAT+ADV=0  ¿ªÆô¹ã²¥    AT+ADV=1   ¹Ø±Õ¹ã²¥
+*****************************************************************************************/
 int ble_adv( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 	const int8_t *pcom;
@@ -94,14 +212,17 @@ int ble_adv( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 	arg1 = at_HEXstringToNum((const uint8_t *)pcom, pxParameterStringLength); 
 	if(arg1 == 0)
 	{
+		usr_led1_set(LED_ON_DUR_IDLE,LED_OFF_DUR_IDLE);
 		app_gap_adv_stop_req();
 	}
 	else if(arg1 == 1)
 	{
-		app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
+				usr_led1_set(LED_ON_DUR_ADV_FAST,LED_ON_DUR_ADV_FAST);
+				app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
 						app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE),
 						app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
-						GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);		
+						GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
+				ke_timer_set(APP_ADV_INTV_UPDATE_TIMER,TASK_APP,30);
 	}
 	else
 	{
@@ -109,7 +230,6 @@ int ble_adv( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 	}
 	return sprintf((char*)pcWriteBuffer,"OK\r\n");
 }
-
 void pwm_io_config(enum PWM_CH ch)
 {
 	if(ch == PWM_CH0)
@@ -124,11 +244,23 @@ void pwm_io_config(enum PWM_CH ch)
 	}
 }
 
+/*
+****************************************************************************************
+* @brief             ble_pwm
+* @param[in]         pcCommandString            ÃüÁîºÍ²ÎÊý´æ·ÅµØÖ·
+* @param[in]         pcWriteBuffer              Ð´Èë´ËÊý×éµÄÃüÁî½«±»·¢ËÍµ½´®¿Ú
+* @param[in]         commpare_length            ÃüÁîËùÕ¼³¤¶È
+* @response          None
+* @return
+* @description       ÆôÓÃ»òÕß¹Ø±ÕPWM£¬ÃüÁî¸ñÊ½£ºAT_PWM=
+*****************************************************************************************/
 int ble_pwm( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
+	//È¡²ÎÓÃÖ¸ÕëºÍ³¤¶ÈÉùÃ÷
 	const int8_t *pcom;
 	uint32_t pxParameterStringLength;
 
+	//PWM²ÎÊý
 	enum PWM_CH ch;
 	uint16_t pscal;
 	uint16_t periodcount;
@@ -136,8 +268,10 @@ int ble_pwm( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 	
   uint8_t parm_num = at_get_parameters_numbers((const uint8_t*)pcCommandString + commpare_length + 2);
 
+	//Èç¹ûÃüÁîÖÐÐ¯´ø²ÎÊý
 	if(pcCommandString[commpare_length+1] == '=')
 	{
+		//Èç¹ûÐ¯´ø4¸ö²ÎÊý,ÔòÒÀ´ÎÎªÍ¨µÀÑ¡Ôñ¡¢·ÖÆµÏµÊý¡¢ÖÜÆÚºÍÕ¼¿Õ±È
 		if(parm_num == 4)
 		{
 			// pwm_ch?
@@ -210,7 +344,7 @@ int ble_pwm( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32
 			pwm_enable(ch, MASK_ENABLE);			
 	
 		}
-		//pwm disable
+		//Èç¹ûÖ»ÓÐÒ»¸ö²ÎÊý£¬ÄÇ¾Í´ú±íÖ¸Ê¾¹Ø±ÕÄÄÒ»¸öÍ¨µÀ
 		else if(parm_num == 1)
 		{
 			if(pcCommandString[commpare_length + 2] == '0')
@@ -243,8 +377,6 @@ pram_err:
 }
 
 
-uint8_t i2c_buff[4];
-extern bool i2c_is_finish(void);
 int ble_i2c( const uint8_t * const pcCommandString,uint8_t* pcWriteBuffer,uint32_t commpare_length)
 {
 	const int8_t *pcom;
@@ -500,6 +632,14 @@ uint8_t at_command_length_get(const uint8_t *command)
 
 }
 
+/*
+****************************************************************************************
+* @brief             at_get_parameters_numbers
+* @param[in]         pcCommandString
+* @response          None
+* @return            Ð¯´ø²ÎÊýµÄ¸öÊý
+* @description       ¼ÆËãÃüÁîÖÐÐ¯´ø²ÎÊýµÄ¸öÊý
+*****************************************************************************************/
 uint8_t at_get_parameters_numbers( const uint8_t * pcCommandString )
 {
 	uint8_t cParameters = 0;
@@ -517,6 +657,15 @@ uint8_t at_get_parameters_numbers( const uint8_t * pcCommandString )
 	return cParameters;
 }
 
+/*
+****************************************************************************************
+* @brief              at_HEXstringToNum
+* @param[in]          str				HEX string addr				
+* @param[in]          length		HEX srring length						
+* @response           None
+* @return             result of conversion
+* @description
+*****************************************************************************************/
 uint32_t at_HEXstringToNum(const uint8_t *str, uint32_t length)
 {  
  uint8_t  revstr[16]={0}; 
@@ -556,13 +705,28 @@ uint32_t at_HEXstringToNum(const uint8_t *str, uint32_t length)
  return result;  
 }
 
+/*
+****************************************************************************************
+* @brief           at_get_parameter
+* @param[in]       pcCommandString    						´«Èë²ÎÊý×Ö·û´®Ö¸Õë
+* @param[in]       uxWantedParameter  						Ô¤ÆÚ»ñÈ¡²ÎÊýÐòºÅ£¬´Ó0¿ªÊ¼£¬¶à¸ö²ÎÊýÒÔ","·Ö¸ô¿ª
+* @param[in]       pxParameterStringLength    		µÚuxWantedParameter¸ö²ÎÊýµÄ³¤¶È
+* @response        None
+* @return          pcReturn												µÚuxWantedParameter¸ö²ÎÊýµÄÖ¸Õë
+* @description     ¸Ãº¯Êý¹¦ÄÜÎª»ñÈ¡²ÎÊýÖÐµÚuxWantedParameter¸ö²ÎÊý
+*****************************************************************************************/
 const int8_t *at_get_parameter( const int8_t* pcCommandString, int32_t uxWantedParameter, uint32_t *pxParameterStringLength )
 {
+	//±êÊ¶»ñÈ¡µ½µÄ²ÎÊýÐòºÅ
 	int uxParametersFound = 0;
+	
+	//ÓÃÓÚ¼ÆËã²ÎÊý³¤¶È
 	const int8_t *pcReturn = pcCommandString;
-
+	
+  //³õÊ¼»¯²ÎÊý³¤¶È
 	*pxParameterStringLength = 0;
 	
+	//»ñÈ¡µ½Ô¤ÆÚ²ÎÊýÐòºÅÎªÖ¹
 	while(uxParametersFound <= uxWantedParameter)
 	{
 		if( *pcCommandString != 0x00 )
@@ -571,11 +735,13 @@ const int8_t *at_get_parameter( const int8_t* pcCommandString, int32_t uxWantedP
 			{
 				pcCommandString++;
 			}
+			//Èç¹ûÊÇÔ¤ÆÚ»ñÈ¡µÄÐòºÅ²ÎÊý£¬¼ÆËã²ÎÊý³¤¶È£¬¶Ï¿ªÑ­»·
 			if(uxParametersFound  ==  uxWantedParameter)
 			{
 				*pxParameterStringLength = pcCommandString - pcReturn;
 				break;
 			}
+			//Èç¹ûÎ´µ½Ô¤ÆÚ²ÎÊýÐòºÅ£¬ÄÇÃ´½«pcReturn±£´æÎªÏÂÒ»¸ö²ÎÊýµÄÆðÊ¼Î»ÖÃ
 			uxParametersFound++;
 			if(( *pcCommandString ) != 0x00)
 			{
@@ -603,6 +769,14 @@ void put_char(const int8_t *pcom,uint32_t len)
 }
 
 
+/*
+****************************************************************************************
+* @brief
+* @param[in]
+* @response
+* @return
+* @description
+*****************************************************************************************/
 int at_process_command(const uint8_t* const pcCommandInput,uint8_t* pcWriteBuffer)
 {
 	uint8_t i;
@@ -612,14 +786,22 @@ int at_process_command(const uint8_t* const pcCommandInput,uint8_t* pcWriteBuffe
 	const uint8_t *pcCommandString;
 	int return_count = 0;
 	
+	// calculate the input length of at command,input at command start with "+"
 	s_input_length   = at_command_length_get((const uint8_t *)pcCommandInput+1);
+	
+	// loop all pc_command
 	for(i = 0;i < sizeof(command)/sizeof(At_CommandInput);i++)
 	{
+		//get the pc_command in turn
 		pcCommandString  = command[i].pcCommand;
+		
+		//calculate the pc_command
 		s_command_length = at_command_length_get((const uint8_t *)pcCommandString);
 
+		//get the longest command length
 		s_commpare_length = s_input_length > s_command_length?s_input_length:s_input_length;
 		
+		//compare nsize of the two command,if it's the same,jump to the relevant function 
 		if (strncmp((const char *)pcCommandInput+1, (const char *)pcCommandString, s_commpare_length) == 0 ) 
 		{
 			return_count = command[i].pxCommandInterpreter(pcCommandInput,pcWriteBuffer,s_commpare_length);
@@ -627,6 +809,7 @@ int at_process_command(const uint8_t* const pcCommandInput,uint8_t* pcWriteBuffe
 			break;
 		}		
 	}
+	// input_command not find in all pc_command
 	if(i == sizeof(command)/sizeof(At_CommandInput))
 	{
 		return_count = sprintf((char *)pcWriteBuffer,"not find comamnd\r\n");

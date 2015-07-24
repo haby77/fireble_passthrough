@@ -1256,6 +1256,14 @@ uint8_t app_set_adv_data(uint16_t disc_mode)
     app_env.adv_data[4] = GAP_AD_TYPE_SHORTENED_NAME;
     len = 5 + name_length;
 #endif
+
+#ifdef	MANU_LOGO
+		uint8_t manu_length = (strlen(MANU_LOGO) <= (31 - len - 2)) ? strlen(MANU_LOGO) : (31 -len - 2);
+		app_env.adv_data[len] = manu_length + 1;
+		app_env.adv_data[len+1] = GAP_AD_TYPE_MANU_SPECIFIC_DATA;
+		strcpy((char *)&app_env.adv_data[len+2],MANU_LOGO);
+		len += (manu_length + 2);
+#endif		
     
     return len;
 }

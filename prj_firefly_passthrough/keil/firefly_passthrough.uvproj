@@ -361,9 +361,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls>--C99</MiscControls>
-              <Define></Define>
+              <Define>CATCH_LOG</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\src\fw;..\..\src\profiles;..\..\src\profiles\qpp;..\..\src\profiles\qpp\qpps;..\..\src\profiles\dis\diss;..\..\src\app;..\..\src\app\gap;..\..\src\app\gatt;..\..\src\app\smp;..\..\src\app\qpps;..\..\src\app\diss;..\..\src\cmsis;..\..\src\driver;..\..\src\lib;..\..\src\qnevb;..\src;..\..\src\app\otas;..\..\src\profiles\ota\otas;..\src\fireble;..\src\fireble\app;..\src\fireble\profile</IncludePath>
+              <IncludePath>..\..\src\fw;..\..\src\profiles;..\..\src\profiles\qpp;..\..\src\profiles\qpp\qpps;..\..\src\profiles\dis\diss;..\..\src\app;..\..\src\app\gap;..\..\src\app\gatt;..\..\src\app\smp;..\..\src\app\qpps;..\..\src\app\diss;..\..\src\cmsis;..\..\src\driver;..\..\src\lib;..\..\src\qnevb;..\src;..\..\src\app\otas;..\..\src\profiles\ota\otas;..\src\fireble;..\src\fireble\app;..\src\fireble\profile;..\..\src\profiles\qpp;..\..\src\profiles\qpp\qpps</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -531,6 +531,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\profiles\prf_utils.c</FilePath>
             </File>
+            <File>
+              <FileName>qpps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\profiles\qpp\qpps\qpps.c</FilePath>
+            </File>
+            <File>
+              <FileName>qpps_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\profiles\qpp\qpps\qpps_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -587,11 +597,6 @@
               <FilePath>..\..\src\profiles\ota\otas\qn_ota.lib</FilePath>
             </File>
             <File>
-              <FileName>qn_qpp.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>..\..\src\profiles\qpp\qpps\qn_qpp.lib</FilePath>
-            </File>
-            <File>
               <FileName>qn9020b2_lib_peripheral.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\..\src\lib\keil\qn9020b2_lib_peripheral.lib</FilePath>
@@ -630,6 +635,16 @@
               <FileName>fireble_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\fireble\profile\fireble_task.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>retarget</GroupName>
+          <Files>
+            <File>
+              <FileName>retarget.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\retarget\retarget.c</FilePath>
             </File>
           </Files>
         </Group>

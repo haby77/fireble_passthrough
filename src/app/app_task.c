@@ -610,6 +610,7 @@ const struct ke_msg_handler app_default_state[] =
     {QPPS_CFG_INDNTF_IND,               	(ke_msg_func_t) app_qpps_cfg_indntf_ind_handler},
     {QPPS_DAVA_VAL_IND,         	        (ke_msg_func_t) app_qpps_data_ind_handler},
     {QPPS_CREATE_DB_CFM,                	(ke_msg_func_t) app_qpps_create_db_cfm_handler},
+		{QPPS_TEST_SEND_TIMER,								(ke_msg_func_t) app_qpps_test_send_timer_handler},
 #endif
     
 #if BLE_OTA_SERVER 

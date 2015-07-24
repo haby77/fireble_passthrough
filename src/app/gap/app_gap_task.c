@@ -38,7 +38,7 @@
 int8_t app_correct_rssi(int8_t rssi)
 {
     int8_t accurate_rssi;
-    
+
     if(rssi <= -17)
     {
         accurate_rssi = 1.026 * rssi + 8.641 + 0.5;
@@ -68,14 +68,14 @@ void app_device_setup(ke_msg_id_t const msgid, void const *param)
     /// Read Link and Host layer versions
     /// Read BD address
     /// Set Reconnection Address feature, only for central
-    /// Set the peer Privacy Flag feature, only for central    
+    /// Set the peer Privacy Flag feature, only for central
 
     // GAP_SEC1_AUTH_PAIR_ENC, need MITM, input and output ability
     app_gap_set_sec_req(QN_SEC_MODE_LEVEL);
 
 #if (QN_32K_RCO)
     ke_timer_set(APP_SYS_RCO_CAL_TIMER, TASK_APP, 100);
-#endif    
+#endif
 }
 
 /*
@@ -94,14 +94,14 @@ void app_device_setup(ke_msg_id_t const msgid, void const *param)
  ****************************************************************************************
  */
 int app_gap_ready_evt_handler(ke_msg_id_t const msgid, void const *param,
-                      ke_task_id_t const dest_id, ke_task_id_t const src_id)
+                              ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
 #if (QN_WORK_MODE == WORK_MODE_SOC)
     app_device_setup(msgid, param);
 #endif
 
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -148,12 +148,12 @@ int app_gap_reset_req_cmp_handler(ke_msg_id_t const msgid, struct gap_reset_req_
  ****************************************************************************************
  */
 int app_gap_set_devname_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_event_common_cmd_complete const *param,
-                                 ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     QPRINTF("Set device name complete\r\n");
-    
+
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -180,7 +180,7 @@ int app_gap_set_sec_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_set_
         app_gap_read_ver_req();
     }
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -200,7 +200,7 @@ int app_gap_set_sec_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_set_
  ****************************************************************************************
  */
 int app_gap_read_ver_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_read_ver_req_cmp_evt const *param,
-                                         ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (APP_INIT == ke_state_get(TASK_APP))
     {
@@ -208,7 +208,7 @@ int app_gap_read_ver_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_rea
         app_gap_read_bdaddr_req();
     }
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -228,7 +228,7 @@ int app_gap_read_ver_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_rea
  ****************************************************************************************
  */
 int app_gap_read_bdaddr_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_read_bdaddr_req_cmp_evt const *param,
-                                            ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (APP_INIT == ke_state_get(TASK_APP))
     {
@@ -247,10 +247,10 @@ int app_gap_read_bdaddr_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_
         app_init_local_smp_key();
 #else
         app_gap_set_bondable_mode_req();
-#endif   
+#endif
     }
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 
@@ -279,7 +279,7 @@ int app_gap_dev_inq_result_handler(ke_msg_id_t const msgid,
 {
     bool found = false;
     const int8_t rssi = app_correct_rssi(param->adv_rep.rssi);
-    
+
     for (uint8_t i = 0; i < app_env.inq_idx; i++)
     {
         if (true == co_bt_bdaddr_compare(&app_env.inq_addr[i], &param->adv_rep.adv_addr))
@@ -293,18 +293,18 @@ int app_gap_dev_inq_result_handler(ke_msg_id_t const msgid,
     if (!found && (app_env.inq_idx < BLE_CONNECTION_MAX))
     {
         struct app_adv_data adv_data;
-        
+
         app_env.addr_type[app_env.inq_idx] = param->adv_rep.adv_addr_type;
         memcpy(app_env.inq_addr[app_env.inq_idx].addr, param->adv_rep.adv_addr.addr, BD_ADDR_LEN);
-        QPRINTF("%d. %c %02X%02X%02X%02X%02X%02X", 
-            app_env.inq_idx,
-            app_env.addr_type[app_env.inq_idx] ? 'R' : 'P', 
-            app_env.inq_addr[app_env.inq_idx].addr[5],
-            app_env.inq_addr[app_env.inq_idx].addr[4],
-            app_env.inq_addr[app_env.inq_idx].addr[3],
-            app_env.inq_addr[app_env.inq_idx].addr[2],
-            app_env.inq_addr[app_env.inq_idx].addr[1],
-            app_env.inq_addr[app_env.inq_idx].addr[0]);
+        QPRINTF("%d. %c %02X%02X%02X%02X%02X%02X",
+                app_env.inq_idx,
+                app_env.addr_type[app_env.inq_idx] ? 'R' : 'P',
+                app_env.inq_addr[app_env.inq_idx].addr[5],
+                app_env.inq_addr[app_env.inq_idx].addr[4],
+                app_env.inq_addr[app_env.inq_idx].addr[3],
+                app_env.inq_addr[app_env.inq_idx].addr[2],
+                app_env.inq_addr[app_env.inq_idx].addr[1],
+                app_env.inq_addr[app_env.inq_idx].addr[0]);
 
         app_parser_adv_data((uint8_t *)param->adv_rep.data, param->adv_rep.data_len, &adv_data);
         if (adv_data.flag & AD_TYPE_NAME_BIT)
@@ -338,21 +338,21 @@ int app_gap_dev_inq_result_handler(ke_msg_id_t const msgid,
  */
 #if (BLE_OBSERVER)
 int app_gap_dev_scan_result_handler(ke_msg_id_t const msgid,
-                                   struct gap_adv_report_evt const *param,
-                                   ke_task_id_t const dest_id,
-                                   ke_task_id_t const src_id)
+                                    struct gap_adv_report_evt const *param,
+                                    ke_task_id_t const dest_id,
+                                    ke_task_id_t const src_id)
 {
     struct app_adv_data adv_data;
-    
-    QPRINTF("%d. %c %02X%02X%02X%02X%02X%02X", 
-        app_env.inq_idx,
-        param->evt.adv_rep[0].adv_addr_type ? 'R' : 'P', 
-        param->evt.adv_rep[0].adv_addr.addr[5],
-        param->evt.adv_rep[0].adv_addr.addr[4],
-        param->evt.adv_rep[0].adv_addr.addr[3],
-        param->evt.adv_rep[0].adv_addr.addr[2],
-        param->evt.adv_rep[0].adv_addr.addr[1],
-        param->evt.adv_rep[0].adv_addr.addr[0]);
+
+    QPRINTF("%d. %c %02X%02X%02X%02X%02X%02X",
+            app_env.inq_idx,
+            param->evt.adv_rep[0].adv_addr_type ? 'R' : 'P',
+            param->evt.adv_rep[0].adv_addr.addr[5],
+            param->evt.adv_rep[0].adv_addr.addr[4],
+            param->evt.adv_rep[0].adv_addr.addr[3],
+            param->evt.adv_rep[0].adv_addr.addr[2],
+            param->evt.adv_rep[0].adv_addr.addr[1],
+            param->evt.adv_rep[0].adv_addr.addr[0]);
 
     app_parser_adv_data((uint8_t *)param->evt.adv_rep[0].data, param->evt.adv_rep[0].data_len, &adv_data);
     if (adv_data.flag & AD_TYPE_NAME_BIT)
@@ -436,7 +436,7 @@ int app_gap_scan_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_event_c
  ****************************************************************************************
  */
 int app_gap_set_mode_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_event_common_cmd_complete const *param,
-                                         ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     app_task_msg_hdl(msgid, param);
 
@@ -446,25 +446,25 @@ int app_gap_set_mode_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_eve
 #if QN_DEMO_AUTO
         // Created DB should has been finished by each profile service,
         // Start Adv mode automatically here
-        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE, 
-        app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE), 
-        app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
-        GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
+        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
+                              app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE),
+                              app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
+                              GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
 #endif
         // Set App to IDLE status here, bondale complete
         ke_state_set(TASK_APP, APP_IDLE);
         QPRINTF("QN BLE is ready.\r\n");
-                        // start adv
-                        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
-                                app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE),
-                                app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
-                                GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
+        // start adv
+        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
+                              app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE),
+                              app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
+                              GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
 
 #if (QN_DEEP_SLEEP_EN)
-                        // prevent entering into deep sleep mode
-                        sleep_set_pm(PM_SLEEP);
-#endif        
-				break;
+        // prevent entering into deep sleep mode
+        sleep_set_pm(PM_SLEEP);
+#endif
+        break;
     case APP_IDLE:
         // Advertising started
         QPRINTF("Advertising start.\r\n");
@@ -527,16 +527,16 @@ int app_gap_adv_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_event_co
  */
 #if (!BLE_BROADCASTER && !BLE_OBSERVER)
 int app_gap_le_create_conn_req_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_le_create_conn_req_cmp_evt const *param,
-                                               ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
-    QPRINTF("Connection with %02X%02X%02X%02X%02X%02X result is 0x%x.\r\n", 
-        param->conn_info.peer_addr.addr[5],
-        param->conn_info.peer_addr.addr[4],
-        param->conn_info.peer_addr.addr[3],
-        param->conn_info.peer_addr.addr[2],
-        param->conn_info.peer_addr.addr[1],
-        param->conn_info.peer_addr.addr[0],
-        param->conn_info.status);
+    QPRINTF("Connection with %02X%02X%02X%02X%02X%02X result is 0x%x.\r\n",
+            param->conn_info.peer_addr.addr[5],
+            param->conn_info.peer_addr.addr[4],
+            param->conn_info.peer_addr.addr[3],
+            param->conn_info.peer_addr.addr[2],
+            param->conn_info.peer_addr.addr[1],
+            param->conn_info.peer_addr.addr[0],
+            param->conn_info.status);
 
     if (APP_ADV == ke_state_get(TASK_APP))
     {
@@ -559,7 +559,7 @@ int app_gap_le_create_conn_req_cmp_evt_handler(ke_msg_id_t const msgid, struct g
     }
 
     app_task_msg_hdl(msgid, param);
-    
+
     return (KE_MSG_CONSUMED);
 }
 #endif
@@ -581,7 +581,7 @@ int app_gap_le_create_conn_req_cmp_evt_handler(ke_msg_id_t const msgid, struct g
  */
 #if (BLE_CENTRAL)
 int app_gap_cancel_conn_req_cmp_evt_handler(ke_msg_id_t const msgid, void const *param,
-                                            ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     return (KE_MSG_CONSUMED);
 }
@@ -612,30 +612,30 @@ int app_gap_discon_cmp_evt_handler(ke_msg_id_t const msgid, struct gap_discon_cm
     {
         struct bd_addr peer_addr;
         app_get_bd_addr_by_conhdl(param->conhdl, &peer_addr);
-        QPRINTF("Disconnect with %02X%02X%02X%02X%02X%02X reason is 0x%x.\r\n", 
-                    peer_addr.addr[5],
-                    peer_addr.addr[4],
-                    peer_addr.addr[3],
-                    peer_addr.addr[2],
-                    peer_addr.addr[1],
-                    peer_addr.addr[0],
-                    param->reason);
-    
+        QPRINTF("Disconnect with %02X%02X%02X%02X%02X%02X reason is 0x%x.\r\n",
+                peer_addr.addr[5],
+                peer_addr.addr[4],
+                peer_addr.addr[3],
+                peer_addr.addr[2],
+                peer_addr.addr[1],
+                peer_addr.addr[0],
+                param->reason);
+
         app_set_link_status_by_conhdl(param->conhdl, NULL, false);
-        #if (BLE_CENTRAL)
+#if (BLE_CENTRAL)
         app_set_client_service_status(param->conhdl);
-        #endif
-        #if (BLE_PERIPHERAL)
+#endif
+#if (BLE_PERIPHERAL)
         app_enable_server_service(false, param->conhdl);
-        #endif
-    
-        #if QN_DEMO_AUTO
+#endif
+
+#if QN_DEMO_AUTO
         // Start Advertising Mode
-        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE, 
-        app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE), 
-        app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
-        GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
-        #endif
+        app_gap_adv_start_req(GAP_GEN_DISCOVERABLE|GAP_UND_CONNECTABLE,
+                              app_env.adv_data, app_set_adv_data(GAP_GEN_DISCOVERABLE),
+                              app_env.scanrsp_data, app_set_scan_rsp_data(app_get_local_service_flag()),
+                              GAP_ADV_FAST_INTV1, GAP_ADV_FAST_INTV2);
+#endif
     }
     else
     {
@@ -680,7 +680,7 @@ int app_gap_name_req_cmp_handler(ke_msg_id_t const msgid, struct gap_name_req_cm
         QPRINTF("\r\n");
     }
     else
-         QPRINTF("Get Name complete with status: 0x%02X.\r\n", param->status);
+        QPRINTF("Get Name complete with status: 0x%02X.\r\n", param->status);
 
     return (KE_MSG_CONSUMED);
 }
@@ -703,7 +703,7 @@ int app_gap_name_req_cmp_handler(ke_msg_id_t const msgid, struct gap_name_req_cm
  */
 #if (QN_WL_SUPPORT)
 int app_gap_le_rd_wlst_size_cmd_cmp_handler(ke_msg_id_t const msgid, struct gap_rd_wlst_size_cmd_complete const *param,
-                                            ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -731,7 +731,7 @@ int app_gap_le_rd_wlst_size_cmd_cmp_handler(ke_msg_id_t const msgid, struct gap_
  */
 #if (QN_WL_SUPPORT)
 int app_gap_le_add_dev_to_wlst_req_cmp_handler(ke_msg_id_t const msgid, struct gap_event_common_cmd_complete const *param,
-                                               ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     QPRINTF("Add device white list with status: %d.\r\n", param->status);
 
@@ -756,7 +756,7 @@ int app_gap_le_add_dev_to_wlst_req_cmp_handler(ke_msg_id_t const msgid, struct g
  */
 #if (QN_WL_SUPPORT)
 int app_gap_le_rmv_dev_from_wlst_req_cmp_handler(ke_msg_id_t const msgid, struct gap_event_common_cmd_complete const *param,
-                                            ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     QPRINTF("Remove device white list with status: %d.\r\n", param->status);
 
@@ -781,7 +781,7 @@ int app_gap_le_rmv_dev_from_wlst_req_cmp_handler(ke_msg_id_t const msgid, struct
  */
 #if (QN_LINK_INFO)
 int app_gap_le_rd_remote_feat_req_cmp_handler(ke_msg_id_t const msgid, struct gap_le_rd_remote_feat_req_cmp_evt const *param,
-                                              ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -814,7 +814,7 @@ int app_gap_le_rd_remote_feat_req_cmp_handler(ke_msg_id_t const msgid, struct ga
  */
 #if (QN_LINK_INFO)
 int app_gap_rd_remote_ver_info_cmp_handler(ke_msg_id_t const msgid, struct gap_rd_rem_ver_info_cmp_evt const *param,
-                                            ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -841,7 +841,7 @@ int app_gap_rd_remote_ver_info_cmp_handler(ke_msg_id_t const msgid, struct gap_r
  ****************************************************************************************
  */
 int app_gap_set_random_add_req_cmp_handler(ke_msg_id_t const msgid, struct gap_set_random_addr_req_cmp_evt const *param,
-                                           ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -901,12 +901,12 @@ int app_gap_param_update_resp_handler(ke_msg_id_t const msgid, struct gap_param_
  ****************************************************************************************
  */
 int app_gap_change_param_req_cmp_handler(ke_msg_id_t const msgid, struct gap_change_param_req_cmp_evt const *param,
-                                         ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
-        QPRINTF("Update parameter complete, interval: 0x%x, latency: 0x%x, sup to: 0x%x.\r\n", 
-                                    param->con_interval, param->con_latency, param->sup_to);
+        QPRINTF("Update parameter complete, interval: 0x%x, latency: 0x%x, sup to: 0x%x.\r\n",
+                param->con_interval, param->con_latency, param->sup_to);
     }
     else
     {
@@ -934,7 +934,7 @@ int app_gap_change_param_req_cmp_handler(ke_msg_id_t const msgid, struct gap_cha
  */
 #if (BLE_CENTRAL)
 int app_gap_set_recon_addr_req_cmp_handler(ke_msg_id_t const msgid, struct gap_set_recon_addr_req_cmp_evt const *param,
-                                           ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -966,7 +966,7 @@ int app_gap_set_recon_addr_req_cmp_handler(ke_msg_id_t const msgid, struct gap_s
  */
 #if (BLE_CENTRAL)
 int app_gap_set_ph_privacy_req_cmp_handler(ke_msg_id_t const msgid, struct gap_set_ph_privacy_req_cmp_evt const *param,
-                                           ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -1008,7 +1008,7 @@ int app_gap_set_privacy_req_cmp_handler(ke_msg_id_t const msgid, struct gap_set_
     {
         QPRINTF("Set privacy failed.\r\n");
     }
-    
+
     return (KE_MSG_CONSUMED);
 }
 #endif
@@ -1070,7 +1070,7 @@ int app_gap_read_rssi_req_cmp_handler(ke_msg_id_t const msgid, struct gap_read_r
                                       ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     const int8_t rssi = app_correct_rssi(param->rssi);
-    
+
     QPRINTF("Read RSSI value result: ");
     if (param->status == CO_ERROR_NO_ERROR)
     {
@@ -1102,11 +1102,11 @@ int app_gap_read_rssi_req_cmp_handler(ke_msg_id_t const msgid, struct gap_read_r
  */
 #if (BLE_CENTRAL)
 int app_gap_param_update_req_ind_handler(ke_msg_id_t const msgid, struct gap_param_update_req_ind const *param,
-                                         ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     QPRINTF("Slave request update connection parameters:\r\n");
-    QPRINTF("intv_min = %#x, intv_max = %#x, latency = %#x, time_out = %#x.\r\n", param->conn_param.intv_min, 
-                param->conn_param.intv_max, param->conn_param.latency, param->conn_param.time_out);
+    QPRINTF("intv_min = %#x, intv_max = %#x, latency = %#x, time_out = %#x.\r\n", param->conn_param.intv_min,
+            param->conn_param.intv_max, param->conn_param.latency, param->conn_param.time_out);
     // User may check parameters details here then to decide whether accept or reject
     if (app_check_update_conn_param((struct gap_conn_param_update *)&param->conn_param))
     {
@@ -1140,10 +1140,10 @@ int app_gap_param_update_req_ind_handler(ke_msg_id_t const msgid, struct gap_par
 int app_gap_bond_req_cmp_ind_handler(ke_msg_id_t const msgid, struct gap_bond_req_cmp_evt const *param,
                                      ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
-    QPRINTF("Bond request complete handle: %04X, bonded: %01X, status: 0x%02X.\r\n", 
-                param->conhdl,
-                param->bonded,
-                param->status);
+    QPRINTF("Bond request complete handle: %04X, bonded: %01X, status: 0x%02X.\r\n",
+            param->conhdl,
+            param->bonded,
+            param->status);
     switch (param->status)
     {
     case CO_ERROR_NO_ERROR:
@@ -1159,11 +1159,11 @@ int app_gap_bond_req_cmp_ind_handler(ke_msg_id_t const msgid, struct gap_bond_re
         // the IO capbility from SMP_IO_CAP_KB_DISPLAY to GAP_SEC1_NOAUTH_PAIR_ENC
         break;
     case SMP_PAIR_ERR_OOB_NOT_AVAILABLE:
-        // repeat BOND request by change 
+        // repeat BOND request by change
         // the oob from SMP_OOB_AUTH_DATA_FROM_REMOTE_DEV_PRESENT to SMP_OOB_AUTH_DATA_NOT_PRESENT
         break;
     case SMP_PAIR_ERR_ENCRYPTION_KEY_SIZE:
-        // repeat BOND request by change 
+        // repeat BOND request by change
         // the key size from SMPC_MIN_ENC_SIZE_LEN to SMPC_MAX_ENC_SIZE_LEN
         break;
     case SMP_PAIR_ERR_PAIRING_NOT_SUPPORTED:
@@ -1198,7 +1198,7 @@ int app_gap_bond_req_cmp_ind_handler(ke_msg_id_t const msgid, struct gap_bond_re
  */
 #if (!BLE_BROADCASTER && !BLE_OBSERVER)
 int app_gap_bond_req_ind_handler(ke_msg_id_t const msgid, struct gap_bond_req_ind const *param,
-                               ke_task_id_t const dest_id, ke_task_id_t const src_id)
+                                 ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
 #if (QN_SECURITY_ON)
     uint8_t reject;
@@ -1222,18 +1222,18 @@ int app_gap_bond_req_ind_handler(ke_msg_id_t const msgid, struct gap_bond_req_in
     }
     app_env.bond_flag |= APP_OP_BOND;
     // response here
-    app_gap_bond_resp(app_get_conhdl_by_idx(param->index), reject, 
-        SMP_OOB_AUTH_DATA_NOT_PRESENT, auth, app_env.iocap_set);
-    QPRINTF("Accept Bond request indi received from %02X%02X:%02X:%02X%02X%02X.\r\n", 
-        param->addr.addr[5],
-        param->addr.addr[4],
-        param->addr.addr[3],
-        param->addr.addr[2],
-        param->addr.addr[1],
-        param->addr.addr[0]);
+    app_gap_bond_resp(app_get_conhdl_by_idx(param->index), reject,
+                      SMP_OOB_AUTH_DATA_NOT_PRESENT, auth, app_env.iocap_set);
+    QPRINTF("Accept Bond request indi received from %02X%02X:%02X:%02X%02X%02X.\r\n",
+            param->addr.addr[5],
+            param->addr.addr[4],
+            param->addr.addr[3],
+            param->addr.addr[2],
+            param->addr.addr[1],
+            param->addr.addr[0]);
 #else
-    app_gap_bond_resp(app_get_conhdl_by_idx(param->index), true, 
-                       SMP_OOB_AUTH_DATA_NOT_PRESENT, SMP_AUTH_REQ_NO_MITM_BOND, SMP_IO_CAP_NO_INPUT_NO_OUTPUT);
+    app_gap_bond_resp(app_get_conhdl_by_idx(param->index), true,
+                      SMP_OOB_AUTH_DATA_NOT_PRESENT, SMP_AUTH_REQ_NO_MITM_BOND, SMP_IO_CAP_NO_INPUT_NO_OUTPUT);
 #endif
 
     return (KE_MSG_CONSUMED);
@@ -1257,10 +1257,10 @@ int app_gap_bond_req_ind_handler(ke_msg_id_t const msgid, struct gap_bond_req_in
  ****************************************************************************************
  */
 int app_gatt_resource_access_req_handler(ke_msg_id_t const msgid, struct gatt_resource_access_req const *param,
-                                         ke_task_id_t const dest_id, ke_task_id_t const src_id)
+        ke_task_id_t const dest_id, ke_task_id_t const src_id)
 {
     struct gatt_resource_access_rsp *msg = KE_MSG_ALLOC(GATT_RESOURCE_ACCESS_RSP, TASK_GATT, TASK_APP,
-                                                        gatt_resource_access_rsp);
+                                           gatt_resource_access_rsp);
 
     msg->conhdl = param->conhdl;
     ke_msg_send(msg);

@@ -127,7 +127,7 @@ int app_fireble_send_data_cfm_handler(ke_msg_id_t const msgid,
 	}
 	else
 	{
-		QPRINTF("FIREBLE send error %d,%d.\r\n", param->status,param->channel_index);
+//		QPRINTF("FIREBLE send error %d,%d.\r\n", param->status,param->channel_index);
 	}
 	
 	fireble_env.out_features |= (0x01 << param->channel_index);

@@ -54,8 +54,6 @@
 #define LED_ON_DUR_IDLE                   0
 #define LED_OFF_DUR_IDLE                  0xffff
 
-#define APP_HEART_RATE_MEASUREMENT_TO     1400 // 14s
-#define APP_HRPS_ENERGY_EXPENDED_STEP     50
 
 
 ///IOS Connection Parameter
@@ -69,11 +67,14 @@
  ****************************************************************************************
  */
  
-void app_event_pt_tx_handler(void)
-{
-	ke_evt_set(1UL<<EVENT_UART_TX_ID);
-} 
- 
+/*
+
+* FUNCTION DEFINITIONS
+
+****************************************************************************************
+
+*/
+  
 #if (defined(QN_ADV_WDT))
 static void adv_wdt_to_handler(void)
 {
@@ -100,7 +101,7 @@ struct usr_env_tag usr_env = {LED_ON_DUR_IDLE, LED_OFF_DUR_IDLE};
  * @brief   Led1 for BLE status
  ****************************************************************************************
  */
-static void usr_led1_set(uint16_t timer_on, uint16_t timer_off)
+void usr_led1_set(uint16_t timer_on, uint16_t timer_off)
 {
     usr_env.led1_on_dur = timer_on;
     usr_env.led1_off_dur = timer_off;
@@ -155,7 +156,6 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
         case GAP_SET_MODE_REQ_CMP_EVT:
             if(APP_IDLE == ke_state_get(TASK_APP))
             {
-//								QPRINTF("debug:a!\r\n");
                 usr_led1_set(LED_ON_DUR_ADV_FAST, LED_OFF_DUR_ADV_FAST);
                 ke_timer_set(APP_ADV_INTV_UPDATE_TIMER, TASK_APP, 30 * 100);
 #if (defined(QN_ADV_WDT))
@@ -164,40 +164,43 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
             }
             else if(APP_ADV == ke_state_get(TASK_APP))
             {
-//								QPRINTF("debug:b!\r\n");
                 usr_led1_set(LED_ON_DUR_ADV_SLOW, LED_OFF_DUR_ADV_SLOW);
 #if (defined(QN_ADV_WDT))
                 usr_env.adv_wdt_enable = true;
 #endif
             }
-//						QPRINTF("debug:c!\r\n");
             break;
 
         case GAP_ADV_REQ_CMP_EVT:
-            usr_led1_set(LED_ON_DUR_IDLE, LED_OFF_DUR_IDLE);
-            ke_timer_clear(APP_ADV_INTV_UPDATE_TIMER, TASK_APP);
+//            usr_led1_set(LED_ON_DUR_IDLE, LED_OFF_DUR_IDLE);
+//            ke_timer_clear(APP_ADV_INTV_UPDATE_TIMER, TASK_APP);
             break;
 
         case GAP_DISCON_CMP_EVT:
 #if QN_COM
+							//clear all event
 							ke_evt_clear(1UL << EVENT_UART_RX_FRAME_ID);
 							ke_evt_clear(1UL << EVENT_UART_RX_TIMEOUT_ID);
 							ke_timer_clear(APP_COM_RX_TIMEOUT_TIMER, TASK_APP);
+							ke_timer_clear(QPPS_TEST_SEND_TIMER,TASK_APP);
+				
+							// set com connection status
 							com_env.com_conn = COM_DISCONN;
+							//when cancel connection and com are still in passthrough traslation mode or passthrough
+							//traslation idle mode,auto change to AT traslation mode
 							if(com_env.com_mode == COM_MODE_TRAN || com_env.com_mode == COM_MODE_TRAN_IDLE)
 							{
-								if(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW)
-								{
-//										QPRINTF("TRAN or_TRAN_IDLE_TO_AT\r\n");
+//								if(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW)
+//								{
+										QPRINTF("TRAN or_TRAN_IDLE_TO_AT\r\n");
 										com_env.com_mode = COM_MODE_AT;
 										led_set(2, LED_ON);
 										com_uart_at_rx_start();
-								}
-								else
-								{
-									
-									uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt 
-								}
+//								}
+//								else
+//								{									
+//									uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt 
+//								}
 							}
 #endif
             usr_led1_set(LED_ON_DUR_IDLE, LED_OFF_DUR_IDLE);
@@ -212,25 +215,28 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
         case GAP_LE_CREATE_CONN_REQ_CMP_EVT:
             if(((struct gap_le_create_conn_req_cmp_evt *)param)->conn_info.status == CO_ERROR_NO_ERROR)
             {
+#if 	QN_COM			
+								// com status init
 								com_env.com_conn = COM_CONN;
-								if(com_env.com_mode == COM_MODE_AT && (gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW) && (gpio_read_pin(COM_AT_ENABLE) == GPIO_HIGH))
+								com_wakeup_handler();
+								//in the connection,if meet the following conditions,FS_QN9021 will enter passthrough mode from AT mode
+								if(com_env.com_mode == COM_MODE_AT && /*(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW) &&*/ (gpio_read_pin(COM_AT_ENABLE) == GPIO_HIGH))
 								{
-									//com_env.com_mode = COM_MODE_TRAN;
 									led_set(2, LED_OFF);
 									uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
+									// if not all notify no,it will enter idle mode
 									if (bit_num >= QPPS_VAL_CHAR_NUM)
 									{		
-//										QPRINTF("AT_TO_TRAN\r\n");
 										com_env.com_mode = COM_MODE_TRAN;						
 										com_uart_rx_start();
 									}
 									else
 									{
-//										QPRINTF("AT_TO_TRAN_IDLE\r\n");
 										com_env.com_mode = COM_MODE_TRAN_IDLE;
-										uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep		
+										uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt and sleep		
 									}
 								}
+#endif								
                 if(GAP_PERIPHERAL_SLV == app_get_role())
                 {
                     ke_timer_clear(APP_ADV_INTV_UPDATE_TIMER, TASK_APP);
@@ -263,49 +269,76 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 
         case QPPS_CFG_INDNTF_IND:
 				{
+#if QN_COM
+						com_wakeup_handler();
             uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
+						// all notify is on and enter TRAN_MODE ,or Enter TARN_IDLE_MODE
             if (bit_num >= QPPS_VAL_CHAR_NUM)  
             {                
-//                QPRINTF("all notify is on!\r\n");
+                QPRINTF("all notify is on!\r\n");
 								if(com_env.com_mode == COM_MODE_TRAN_IDLE)
 								{
 									com_env.com_mode = COM_MODE_TRAN;
+									uart_rx_int_enable(QN_COM_UART,MASK_ENABLE);
 								}
 								if(com_env.com_mode == COM_MODE_TRAN)
 								{
-//									uart_uart_ClrIntFlag(CFG_COM_UART,0x1ff);
-//									uart_uart_GetRXD(CFG_COM_UART);
 									com_uart_rx_start();
 								}
+								//ke_timer_set(QPPS_TEST_SEND_TIMER,TASK_APP,50);
             }
 						else
 						{
-//								QPRINTF("not all notify is on! uart_int_disable\r\n");
 								if(com_env.com_mode == COM_MODE_TRAN)
 								{
 									com_env.com_mode = COM_MODE_TRAN_IDLE;
 									uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep
-								}							
+								}
+								ke_timer_clear(QPPS_TEST_SEND_TIMER,TASK_APP);
 						}
-
-            
+#endif            
         }break;
 				case QPPS_DAVA_VAL_IND:
 							{
-									///leo add
+									/// passthrough the data form client to com 
 									struct qpps_data_val_ind* par = (struct qpps_data_val_ind*)param;
 									
 								  if (par->length > 0)
 									{
+#if QN_COM								
 										if(	com_env.com_mode == COM_MODE_TRAN)
-											com_pdu_send(par->length,&(par->data[0]));
+										{
+											if (com_env.auto_line_feed == COM_LF)
+											{
+												 par->length += 2;
+												 par->data[par->length-2] = 0x0D;
+												 par->data[par->length-1]	= 0x0A;
+												 com_pdu_send(par->length,&(par->data[0]));
+											}
+											else
+											{											
+												 com_pdu_send(par->length,&(par->data[0]));
+											}
+										}
+										
+										QPRINTF("\r\n@@@com_env.com_mode = %s\r\n",
+										(com_env.com_mode == COM_MODE_IDLE) ? "COM_MODE_IDLE" : 
+										(com_env.com_mode == COM_MODE_AT) ? "COM_MODE_AT" :
+										(com_env.com_mode == COM_MODE_TRAN) ? "COM_MODE_TRAN" : "COM_MODE_TRAN_IDLE");
+#endif								
 									}
-
+                  /// end
 							}
 						break;
+							
 				case QPPS_DATA_SEND_CFM:
 						{
+								app_qpps_env->char_status |= (QPPS_VALUE_NTF_CFG << ((struct qpps_data_send_cfm *)param)->char_index);
+#if QN_COM							
+								if (!co_list_is_empty(&com_env.queue_rx))
+									app_tx_done();
 								uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
+								/// if com_mode is  COM_MODE_TRAN and data has send to client success,continiu receive data from com
 								if (bit_num >= QPPS_VAL_CHAR_NUM)
 								{										
 										if(com_env.com_mode == COM_MODE_TRAN)
@@ -313,7 +346,7 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 											com_uart_rx_start();
 										}
 								}
-								//ke_evt_set(1UL << EVENT_COM_RX_WAKEUP_ID);
+#endif								
 						}
 						break;
         case OTAS_TRANSIMIT_STATUS_IND:
@@ -451,26 +484,6 @@ void usr_at_wakeup_cb(void)
 		ke_evt_set(1UL << EVENT_AT_ENABLE_PRESS_ID);
 }
 
-void com_rx_wakeup_cb(void)
-{
-	    // If BLE is in the sleep mode, wakeup it.
-    if(ble_ext_wakeup_allow())
-    {
-#if ((QN_DEEP_SLEEP_EN) && (!QN_32K_RCO))
-        if (sleep_env.deep_sleep)
-        {
-            wakeup_32k_xtal_switch_clk();
-        }
-#endif
-
-        sw_wakeup_ble_hw();
-    }
-    // key debounce:
-    // We can set a soft timer to debounce.
-    // After wakeup BLE, the timer is not calibrated immediately and it is not precise.
-    // So We set a event, in the event handle, set the soft timer.
-    ke_evt_set(1UL << EVENT_COM_RX_WAKEUP_ID);
-}
 
 /**
  ****************************************************************************************
@@ -485,9 +498,6 @@ void gpio_interrupt_callback(enum gpio_pin pin)
 							usr_at_wakeup_cb();
             break;
 				
-				case	COM_RX_ENABLE:
-							com_rx_wakeup_cb();
-						break;
 #if (defined(QN_TEST_CTRL_PIN))
         case QN_TEST_CTRL_PIN:
             //When test controll pin is changed to low level, this function will reboot system.
@@ -509,13 +519,27 @@ void gpio_interrupt_callback(enum gpio_pin pin)
  */
 void usr_init(void)
 {
-//    if(KE_EVENT_OK != ke_evt_callback_set(EVENT_BUTTON1_PRESS_ID, 
-//                                            app_event_button1_press_handler))
-//    {
-//        ASSERT_ERR(0);
-//    }
+	
+}
 
+/*
+****************************************************************************************
+* @brief       msgid:QPPS_TEST_SEND_TIMER
+* @param[in]
+* @response
+* @return
+* @description @@@Send test data to client
+*****************************************************************************************/
 
+int app_qpps_test_send_timer_handler(ke_msg_id_t const msgid, void const *param, ke_task_id_t const dest_id, ke_task_id_t const src_id)
+{
+	QPRINTF("\r\n@@@QPPS_TEST_SEND_TIMER!\r\n");
+	ke_timer_clear(QPPS_TEST_SEND_TIMER,TASK_APP);
+  static uint8_t i = 0;
+	app_qpps_data_send(app_qpps_env->conhdl,0,1,&i);
+	i++;
+	ke_timer_set(QPPS_TEST_SEND_TIMER,TASK_APP,50);
+	return(KE_MSG_CONSUMED);
 }
 
 /// @} USR
