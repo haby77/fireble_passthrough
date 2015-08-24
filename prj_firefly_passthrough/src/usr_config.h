@@ -48,7 +48,7 @@
 #define CFG_LOCAL_NAME   "FireBLE QPPS"
 
 /// Manufacturer Logo
-#define	MANU_LOGO					"FireBLE_PT"
+//#define	MANU_LOGO					"FireBLE_PT"
 
 /// DC-DC enable
 #define CFG_DC_DC

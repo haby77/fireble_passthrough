@@ -306,7 +306,7 @@ __STATIC_INLINE void uart_rx_int_enable(QN_UART_TypeDef *UART, uint32_t able)
     uint32_t reg;
 #if UART_RX_ACTIVE_BIT_EN==TRUE
     uint32_t dev = 0;
-
+                                                                 
     if (UART == QN_UART0) {
         dev = PM_MASK_UART0_RX_ACTIVE_BIT;
     }

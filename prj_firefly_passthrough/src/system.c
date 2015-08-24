@@ -99,7 +99,7 @@ static void SystemIOCfg(void)
 #else
     syscon_SetPPCR0(QN_SYSCON, 0xAAAAAAAA);
 #endif
-    syscon_SetPPCR1(QN_SYSCON, 0x2AAAAAAA);
+    syscon_SetPPCR1(QN_SYSCON, 0xAAAAAAAA);
 }
 
 // add pto_test for FS_QN9021,test all GPIO is useable.
@@ -293,7 +293,7 @@ void all_gpio_test(void)
                     | P14_GPIO_12_PIN_CTRL
                     | P15_GPIO_13_PIN_CTRL
                     | P16_GPIO_14_PIN_CTRL
-                    | P17_UART0_RXD_PIN_CTRL
+                    | P17_GPIO_15_PIN_CTRL
                    );
     syscon_SetPMCR1(QN_SYSCON, P20_GPIO_16_PIN_CTRL
                     | P21_GPIO_17_PIN_CTRL
