@@ -48,8 +48,7 @@ enum com_conn
 enum com_mode
 {
 		COM_MODE_IDLE =0,
-		COM_MODE_TRAN_IDLE,
-    COM_MODE_TRAN,
+  	COM_MODE_TRAN,
 		COM_MODE_AT
 };
 
@@ -105,4 +104,5 @@ extern void app_event_com_rx_wakeup_handler(void);
 extern void app_event_at_enable_press_handler(void);
 extern void com_wakeup_handler(void);
 extern void app_tx_done(void);
+extern void show_com_mode(uint8_t com_mode);
 #endif

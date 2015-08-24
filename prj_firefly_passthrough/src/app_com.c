@@ -57,6 +57,38 @@ static void app_push(struct ke_msg *msg);
 
 extern uint32_t get_bit_num(uint32_t val);
 
+
+
+void show_com_mode(uint8_t com_mode)
+{
+	QPRINTF("\r\n/*******************************");
+	QPRINTF("\r\n *                             *");
+	switch(com_mode)
+	{
+		case	COM_MODE_IDLE	:
+		{
+			QPRINTF("\r\n *       COM_MODE_IDLE         *");
+			break;
+		}
+		case	COM_MODE_TRAN	:
+		{
+			QPRINTF("\r\n *       COM_MODE_TRAN         *");
+			break;
+		}
+		case	COM_MODE_AT	:
+		{
+			QPRINTF("\r\n *        COM_MODE_AT          *");
+			break;
+		}
+		default	:
+			QPRINTF("\r\n *      COM_MODE_UNKNOWN        *");
+			break;
+	}
+	QPRINTF("\r\n *                             *");
+	QPRINTF("\r\n********************************/\r\n");
+}
+
+
 /*******************************************************************
 
 				COM Init
@@ -109,8 +141,10 @@ void com_init(void)
     com_env.auto_line_feed = COM_NO_LF;
     co_list_init(&com_env.queue_tx);			//init TX queue
     co_list_init(&com_env.queue_rx);			//init RX queue
-
+	
     com_gpio_init();
+	
+		show_com_mode(com_env.com_mode);
 
     if(KE_EVENT_OK != ke_evt_callback_set(EVENT_UART_TX_ID, com_tx_done))
         ASSERT_ERR(0);
@@ -146,11 +180,10 @@ void com_init(void)
 * @description    com wake msg handler
 *****************************************************************************************/
 void com_wakeup_handler(void)
-{
+ {
     switch(com_env.com_mode)
     {
     case COM_MODE_IDLE:
-    case COM_MODE_TRAN_IDLE:
     {
         // Enter COM_MODE_AT when COM_AT_ENABLE¡¡is GPIO_LOW
         if (gpio_read_pin(COM_AT_ENABLE) == GPIO_LOW)
@@ -160,22 +193,22 @@ void com_wakeup_handler(void)
             com_uart_at_rx_start();
         }
         // Enter COM_MODE_TRAN when  COM_AT_ENABLE isnot GPIO_LOW and the connection created.
-        else if(/*gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW && */com_env.com_conn == COM_CONN)
+        else if(com_env.com_conn == COM_CONN)
         {
-            com_env.com_mode = COM_MODE_TRAN;
+            com_env.com_mode = COM_MODE_IDLE;
             led_set(2, LED_OFF);
             uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
             if (bit_num >= QPPS_VAL_CHAR_NUM)
             {
+								com_env.com_mode = COM_MODE_TRAN;
                 com_uart_rx_start();
             }
         }
         // Enter COM_MODE_AT when connection is disconnect
-        else if(/*gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW && */com_env.com_conn == COM_DISCONN)
+        else if(com_env.com_conn == COM_DISCONN)
         {
-            com_env.com_mode = COM_MODE_AT;
-            led_set(2, LED_ON);
-            com_uart_at_rx_start();
+            com_env.com_mode = COM_MODE_IDLE;
+            led_set(2, LED_OFF);
         }
         break;
     }
@@ -191,11 +224,12 @@ void com_wakeup_handler(void)
     case COM_MODE_AT:
         // Enter  COM_MODE_TRAN
     {
-        com_env.com_mode = COM_MODE_TRAN;
+        com_env.com_mode = COM_MODE_IDLE;
         led_set(2, LED_OFF);
         uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
         if (bit_num >= QPPS_VAL_CHAR_NUM)
         {
+						com_env.com_mode = COM_MODE_TRAN;
             com_uart_rx_start();
         }
         break;
@@ -231,6 +265,7 @@ int app_com_at_rx_enable_handler(ke_msg_id_t const msgid, void const *param,
     case COM_MODE_AT:
         if(gpio_read_pin(COM_AT_ENABLE) == GPIO_HIGH)
         {
+            com_env.com_mode = COM_MODE_IDLE;
             if(com_env.com_conn == COM_CONN)
             {
                 led_set(2, LED_OFF);
@@ -242,21 +277,20 @@ int app_com_at_rx_enable_handler(ke_msg_id_t const msgid, void const *param,
                 }
                 else
                 {
-                    com_env.com_mode = COM_MODE_TRAN_IDLE;
-                    uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep
+                    com_env.com_mode = COM_MODE_IDLE;
                 }
             }
             else
             {
                 led_set(2, LED_OFF);
                 com_env.com_mode = COM_MODE_IDLE;
-                uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep
             }
         }
         break;
     default:
         break;
     }
+		show_com_mode(com_env.com_mode);
     return (KE_MSG_CONSUMED);
 }
 

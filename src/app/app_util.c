@@ -1240,7 +1240,7 @@ uint8_t app_set_adv_data(uint16_t disc_mode)
     memcpy((char *)&app_env.adv_data[5], device_name.name, device_name.namelen);
     len = 5 + device_name.namelen;
 #else
-    nvds_tag_len_t name_length = 31 - 5; // The maximum length of Advertising data is 31 Octets
+    nvds_tag_len_t name_length = BD_NAME_SIZE - 5; // The maximum length of Advertising data is 31 Octets
 
     if (NVDS_OK != nvds_get(NVDS_TAG_DEVICE_NAME, &name_length, &app_env.adv_data[5]))
     {
@@ -1259,10 +1259,10 @@ uint8_t app_set_adv_data(uint16_t disc_mode)
 
 #ifdef	MANU_LOGO
 		uint8_t manu_length = (strlen(MANU_LOGO) <= (31 - len - 2)) ? strlen(MANU_LOGO) : (31 -len - 2);
-		app_env.adv_data[len] = manu_length + 1;
-		app_env.adv_data[len+1] = GAP_AD_TYPE_MANU_SPECIFIC_DATA;
-		strcpy((char *)&app_env.adv_data[len+2],MANU_LOGO);
-		len += (manu_length + 2);
+		app_env.adv_data[len + 1] = manu_length + 1;
+		app_env.adv_data[len + 2] = GAP_AD_TYPE_MANU_SPECIFIC_DATA;
+		strcpy((char *)&app_env.adv_data[len + 3],MANU_LOGO);
+		len = len + manu_length + 2;
 #endif		
     
     return len;

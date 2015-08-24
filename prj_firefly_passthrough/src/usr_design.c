@@ -144,6 +144,7 @@ static void usr_led1_process(void)
     }
 }
 
+
 /**
  ****************************************************************************************
  * @brief   Application task message handler
@@ -188,19 +189,9 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 							com_env.com_conn = COM_DISCONN;
 							//when cancel connection and com are still in passthrough traslation mode or passthrough
 							//traslation idle mode,auto change to AT traslation mode
-							if(com_env.com_mode == COM_MODE_TRAN || com_env.com_mode == COM_MODE_TRAN_IDLE)
+							if(com_env.com_mode == COM_MODE_IDLE)
 							{
-//								if(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW)
-//								{
-										QPRINTF("TRAN or_TRAN_IDLE_TO_AT\r\n");
-										com_env.com_mode = COM_MODE_AT;
-										led_set(2, LED_ON);
-										com_uart_at_rx_start();
-//								}
-//								else
-//								{									
-//									uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt 
-//								}
+								
 							}
 #endif
             usr_led1_set(LED_ON_DUR_IDLE, LED_OFF_DUR_IDLE);
@@ -218,7 +209,6 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 #if 	QN_COM			
 								// com status init
 								com_env.com_conn = COM_CONN;
-								com_wakeup_handler();
 								//in the connection,if meet the following conditions,FS_QN9021 will enter passthrough mode from AT mode
 								if(com_env.com_mode == COM_MODE_AT && /*(gpio_read_pin(COM_RX_ENABLE) == GPIO_LOW) &&*/ (gpio_read_pin(COM_AT_ENABLE) == GPIO_HIGH))
 								{
@@ -228,12 +218,12 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 									if (bit_num >= QPPS_VAL_CHAR_NUM)
 									{		
 										com_env.com_mode = COM_MODE_TRAN;						
+										com_wakeup_handler();
 										com_uart_rx_start();
 									}
 									else
 									{
-										com_env.com_mode = COM_MODE_TRAN_IDLE;
-										uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt and sleep		
+										com_env.com_mode = COM_MODE_IDLE;
 									}
 								}
 #endif								
@@ -270,16 +260,16 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
         case QPPS_CFG_INDNTF_IND:
 				{
 #if QN_COM
-						com_wakeup_handler();
+						//com_wakeup_handler();
             uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
 						// all notify is on and enter TRAN_MODE ,or Enter TARN_IDLE_MODE
             if (bit_num >= QPPS_VAL_CHAR_NUM)  
             {                
                 QPRINTF("all notify is on!\r\n");
-								if(com_env.com_mode == COM_MODE_TRAN_IDLE)
+								if(com_env.com_mode == COM_MODE_IDLE)
 								{
 									com_env.com_mode = COM_MODE_TRAN;
-									uart_rx_int_enable(QN_COM_UART,MASK_ENABLE);
+									com_wakeup_handler();
 								}
 								if(com_env.com_mode == COM_MODE_TRAN)
 								{
@@ -291,8 +281,8 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 						{
 								if(com_env.com_mode == COM_MODE_TRAN)
 								{
-									com_env.com_mode = COM_MODE_TRAN_IDLE;
-									uart_rx_int_enable(QN_COM_UART, MASK_DISABLE);  //disable uart rx interrupt ?sleep
+									com_env.com_mode = COM_MODE_IDLE;
+									com_wakeup_handler();
 								}
 								ke_timer_clear(QPPS_TEST_SEND_TIMER,TASK_APP);
 						}
@@ -320,11 +310,15 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 												 com_pdu_send(par->length,&(par->data[0]));
 											}
 										}
+										else
+										{
 										
-										QPRINTF("\r\n@@@com_env.com_mode = %s\r\n",
-										(com_env.com_mode == COM_MODE_IDLE) ? "COM_MODE_IDLE" : 
-										(com_env.com_mode == COM_MODE_AT) ? "COM_MODE_AT" :
-										(com_env.com_mode == COM_MODE_TRAN) ? "COM_MODE_TRAN" : "COM_MODE_TRAN_IDLE");
+										}
+//										
+//										QPRINTF("\r\n@@@com_env.com_mode = %s\r\n",
+//										(com_env.com_mode == COM_MODE_IDLE) ? "COM_MODE_IDLE" : 
+//										(com_env.com_mode == COM_MODE_AT) ? "COM_MODE_AT" :
+//										(com_env.com_mode == COM_MODE_TRAN) ? "COM_MODE_TRAN" : "COM_MODE_TRAN_IDLE");
 #endif								
 									}
                   /// end
