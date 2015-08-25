@@ -335,7 +335,7 @@ void com_uart_rx(void)
     //continue receive the data for RX
     com_env.com_rx_len++;
     //set pt gpio state
-    if(com_env.com_rx_len == QPPS_VAL_CHAR_NUM*QPP_DATA_MAX_LEN*6)  //receive data buf is full, should sent them to ble
+    if(com_env.com_rx_len == QPPS_VAL_CHAR_NUM_MAX*QPP_DATA_MAX_LEN)  //receive data buf is full, should sent them to ble
     {
         ke_evt_set(1UL << EVENT_UART_RX_FRAME_ID);
     }
@@ -497,6 +497,8 @@ void dev_send_to_app(struct app_uart_data_ind *param)
     uint8_t *buf_20;
     int16_t len = param->len;
     int16_t send_len = 0;
+	
+		uint8_t packet_len = get_bit_num(app_qpps_env->char_status)*20;
 #ifdef	CATCH_LOG
     QPRINTF("\r\n@@@len %d\r\n@@@data\r\n",len);
 
@@ -508,15 +510,15 @@ void dev_send_to_app(struct app_uart_data_ind *param)
     {
         for(uint8_t i =0; send_len < len; i++)
         {
-            if (len > 20) //Split data into package when len longger than 20
+            if (len > packet_len) //Split data into package when len longger than 20
             {
-                if (len - send_len > 20)	
+                if (len - send_len > packet_len)	
                 {
-                    buf_20 = (uint8_t*)ke_msg_alloc(0, 0, 0, 20);
+                    buf_20 = (uint8_t*)ke_msg_alloc(0, 0, 0, packet_len);
                     if(buf_20 != NULL)
                     {
-                        memcpy(buf_20,param->data+send_len,20);
-                        send_len+=20;
+                        memcpy(buf_20,param->data+send_len,packet_len);
+                        send_len+=packet_len;
                     }
                 }
                 else
@@ -528,15 +530,20 @@ void dev_send_to_app(struct app_uart_data_ind *param)
                         send_len = len;
                     }
                 }
-								//push the package to kernel queue.
-                app_push(ke_param2msg(buf_20));
             }
             else	//not longger ther 20 send data directely
             {
-                app_qpps_data_send(app_qpps_env->conhdl,0,len,param->data);
-                send_len = len;
+								buf_20 = (uint8_t *)ke_msg_alloc(0,0,0,len);
+								if (buf_20 != NULL)
+								{
+										memcpy(buf_20,param->data,len);
+										send_len = len;
+								}
+                //app_qpps_data_send(app_qpps_env->conhdl,0,len,param->data);
             }
-        }
+						//push the package to kernel queue.
+						app_push(ke_param2msg(buf_20));
+				}
     }
 }
 
@@ -550,11 +557,28 @@ void app_push(struct ke_msg *msg)
     QPRINTF("\r\n");
 	
 		//only send in the first push.
-    if (get_bit_num(app_qpps_env->char_status) == QPPS_VAL_CHAR_NUM)
-    {
-        app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << 0);
-        app_qpps_data_send(app_qpps_env->conhdl,0,msg->param_len,((uint8_t *)&msg->param));
-    }
+		uint8_t *p_data = (uint8_t *)msg->param;
+		uint8_t pack_nb = msg->param_len/QPP_DATA_MAX_LEN + 1;
+		uint8_t pack_divide_len =  msg->param_len%QPP_DATA_MAX_LEN;
+		for (uint8_t char_idx = 0,i = 0;((app_qpps_env->char_status & (~(QPPS_VALUE_NTF_CFG << (char_idx - 1) ))) && (char_idx < QPPS_VAL_CHAR_NUM ));char_idx++)
+		{
+			if (i < (pack_nb - 1))
+			{
+				app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << char_idx);
+				app_qpps_data_send(app_qpps_env->conhdl,char_idx,QPP_DATA_MAX_LEN,(uint8_t *)p_data);
+				p_data += QPP_DATA_MAX_LEN;
+			}
+			else
+			{
+				if ((pack_divide_len != 0) && (i == (pack_nb - 1)))
+				{
+					app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << char_idx);
+					app_qpps_data_send(app_qpps_env->conhdl,char_idx,pack_divide_len,(uint8_t *)p_data);
+					p_data += pack_divide_len;
+				}
+			}
+			i++;
+		}
 }
 
 void app_tx_done(void)
@@ -572,7 +596,31 @@ void app_tx_done(void)
         for (uint8_t i = 0; i<msg->param_len; i++)
             QPRINTF("%c",((uint8_t *)&msg->param)[i]);
         QPRINTF("\r\n");
-        app_qpps_data_send(app_qpps_env->conhdl, 0, msg->param_len, ((uint8_t *)&msg->param));
+			
+			
+				uint8_t *p_data = (uint8_t *)msg->param;
+				uint8_t pack_nb = msg->param_len/QPP_DATA_MAX_LEN + 1;
+				uint8_t pack_divide_len =  msg->param_len%QPP_DATA_MAX_LEN;
+				for (uint8_t char_idx = 0,i = 0;((app_qpps_env->char_status & (~(QPPS_VALUE_NTF_CFG << (char_idx - 1)))) && (char_idx < QPPS_VAL_CHAR_NUM));char_idx++)
+				{
+					if (i < (pack_nb - 1))
+					{
+						app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << char_idx);
+						app_qpps_data_send(app_qpps_env->conhdl,char_idx,QPP_DATA_MAX_LEN,(uint8_t *)p_data);
+						p_data += QPP_DATA_MAX_LEN;
+					}
+					else
+					{
+						if ((pack_divide_len != 0) && (i == (pack_nb - 1)))
+						{
+							app_qpps_env->char_status &= ~(QPPS_VALUE_NTF_CFG << char_idx);
+							app_qpps_data_send(app_qpps_env->conhdl,char_idx,pack_divide_len,(uint8_t *)p_data);
+							p_data += pack_divide_len;
+						}
+					}
+					i++;
+				}
+				
     }
 
     QPRINTF("app_tx_done\r\n");

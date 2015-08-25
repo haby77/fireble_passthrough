@@ -19,7 +19,8 @@
 
 #define COM_FRAME_TIMEOUT 3 //COM_FRAME_TIMEOUT*10ms
 
-#define QPPS_VAL_CHAR_NUM	(2)
+#define QPPS_VAL_CHAR_NUM	(7)
+#define	QPPS_VAL_CHAR_NUM_MAX	(7)
 #define COM_AT_COMM_BUF		(0xff)
 
 #define	COM_RX_ENABLE					(GPIO_P02)  //待定，未确定是否需要
@@ -73,7 +74,7 @@ struct com_env_tag
     ///UART RX parameter 
     uint8_t com_rx_len;
 		uint8_t com_at_len;
-    uint8_t com_rx_buf[QPPS_VAL_CHAR_NUM*QPP_DATA_MAX_LEN];
+    uint8_t com_rx_buf[QPPS_VAL_CHAR_NUM_MAX*QPP_DATA_MAX_LEN];
     uint8_t com_at_buf[COM_AT_COMM_BUF];
 		bool		auto_line_feed;
 

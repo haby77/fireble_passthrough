@@ -329,12 +329,12 @@ void app_task_msg_hdl(ke_msg_id_t const msgid, void const *param)
 						{
 								app_qpps_env->char_status |= (QPPS_VALUE_NTF_CFG << ((struct qpps_data_send_cfm *)param)->char_index);
 #if QN_COM							
-								if (!co_list_is_empty(&com_env.queue_rx))
-									app_tx_done();
 								uint8_t bit_num = get_bit_num(app_qpps_env->char_status);
 								/// if com_mode is  COM_MODE_TRAN and data has send to client success,continiu receive data from com
 								if (bit_num >= QPPS_VAL_CHAR_NUM)
 								{										
+										if (!co_list_is_empty(&com_env.queue_rx))
+											app_tx_done();
 										if(com_env.com_mode == COM_MODE_TRAN)
 										{
 											com_uart_rx_start();
