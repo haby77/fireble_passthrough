@@ -50,8 +50,6 @@
  * LOCAL VARIABLE DEFINITIONS
  ****************************************************************************************
  */
-// for debug
-static void put_char(const int8_t *pcom,uint32_t len);
 
 /*
  * GLOBAL VARIABLE DEFINITIONS
@@ -756,16 +754,6 @@ const int8_t *at_get_parameter( const int8_t* pcCommandString, int32_t uxWantedP
 	}
 	
 	return pcReturn;
-}
-void put_char(const int8_t *pcom,uint32_t len)
-{
-
-	for(uint32_t i =0;i<len;i++)
-	{
-		#ifdef CFG_DBG_PRINT
-		UartPutc(pcom[i]);
-		#endif
-	}
 }
 
 
