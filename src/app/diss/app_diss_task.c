@@ -30,17 +30,17 @@
 
 /// @cond
 // Manufacturing name
-#define DIS_MANU_NAME_VAL               "TChip"
+#define DIS_MANU_NAME_VAL               "Firefly"
 //Model number
 #define DIS_MODEL_NB_VAL                "QN-BLE-B2"
 //Serial number
 #define DIS_SERIAL_NB_VAL               "1.3.3-LE"
 //Firmware Revision string value
-#define DIS_FW_REV_VAL                  "6.3.2"
+#define DIS_FW_REV_VAL                  "1.3.7"
 //Hardware Revision string value
-#define DIS_HW_REV_VAL                  "0.1.8"
+#define DIS_HW_REV_VAL                  "15.01.22"
 //Software Revision string value
-#define DIS_SW_REV_VAL                  "6.2.0"
+#define DIS_SW_REV_VAL                  "15.08.1"
 //System ID
 #define DIS_SYS_ID_VAL                  "\x00\x00\x00\xFE\xFF\xBE\x7C\x08"
 //IEEE Certif bytes

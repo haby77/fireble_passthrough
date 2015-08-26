@@ -521,6 +521,16 @@
               <FileType>1</FileType>
               <FilePath>..\src\app_com.c</FilePath>
             </File>
+            <File>
+              <FileName>app_diss.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\app\diss\app_diss.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_diss_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\app\diss\app_diss_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -540,6 +550,16 @@
               <FileName>qpps_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\profiles\qpp\qpps\qpps_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>diss.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\profiles\dis\diss\diss.c</FilePath>
+            </File>
+            <File>
+              <FileName>diss_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\profiles\dis\diss\diss_task.c</FilePath>
             </File>
           </Files>
         </Group>

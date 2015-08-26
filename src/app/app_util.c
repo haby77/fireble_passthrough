@@ -379,9 +379,9 @@ void app_init_local_smp_key(void)
  ****************************************************************************************
  */
 #if (BLE_PERIPHERAL)
-uint16_t app_get_local_service_flag(void)
+uint32_t app_get_local_service_flag(void)
 {
-    uint16_t srv_flag = 0;
+    uint32_t srv_flag = 0;
     
 #if BLE_HT_THERMOM
     srv_flag |= BLE_HT_THERMOM_BIT;
@@ -431,8 +431,10 @@ uint16_t app_get_local_service_flag(void)
 #if BLE_QPP_SERVER
     srv_flag |= BLE_QPPS_SERVER_BIT;
 #endif
-
-#ifdef CFG_PRF_FIREBLE
+#ifdef BLE_OTA_SERVER
+	srv_flag |= BLE_OTA_SERVER_BIT;
+#endif
+#ifdef FIREBLE_PT_SERVER
 	srv_flag |= BLE_FIREBLE_SERVER_BIT;
 #endif
     return srv_flag;
@@ -446,7 +448,7 @@ uint16_t app_get_local_service_flag(void)
  ****************************************************************************************
  */
 #if (BLE_PERIPHERAL)
-void app_clear_local_service_flag(uint16_t srv_bit)
+void app_clear_local_service_flag(uint32_t srv_bit)
 {
     app_env.srv_flag &= ~srv_bit;
 }
@@ -1278,7 +1280,7 @@ uint8_t app_set_adv_data(uint16_t disc_mode)
  ****************************************************************************************
  */
 #if (BLE_PERIPHERAL)
-uint8_t app_set_scan_rsp_data(uint16_t srv_flag)
+uint8_t app_set_scan_rsp_data(uint32_t srv_flag)
 {
     /* "\x05\x12\x06\x00\x80\x0C" */
     uint8_t len;
@@ -1290,8 +1292,8 @@ uint8_t app_set_scan_rsp_data(uint16_t srv_flag)
         app_env.scanrsp_data[1] = 0x12;
         app_env.scanrsp_data[2] = 0x06;
         app_env.scanrsp_data[3] = 0x00;
-        app_env.scanrsp_data[4] = 0x80;
-        app_env.scanrsp_data[5] = 0x0C;
+        app_env.scanrsp_data[4] = 0x12;
+        app_env.scanrsp_data[5] = 0x08;
 
         len = 6;
     }
@@ -1299,21 +1301,12 @@ uint8_t app_set_scan_rsp_data(uint16_t srv_flag)
 #if ( BLE_AN_SERVER || BLE_CSC_SENSOR || BLE_PAS_SERVER || BLE_HT_THERMOM || BLE_RSC_SENSOR\
       || BLE_BP_SENSOR || BLE_HR_SENSOR || BLE_GL_SENSOR || BLE_TIP_SERVER || BLE_SP_SERVER\
       || BLE_HID_DEVICE || BLE_PROX_REPORTER || BLE_FINDME_TARGET || BLE_DIS_SERVER || BLE_BATT_SERVER\
-      || BLE_OTA_SERVER )
+      || BLE_OTA_SERVER || FIREBLE_PT_SERVER)
     uint8_t remain_len = 25-2;
 #endif
     bool complete = true;
     len = 2;
 
-#if BLE_QPP_SERVER
-    if (srv_flag & BLE_QPPS_SERVER_BIT)
-    {
-        app_env.scanrsp_data[0] = ATT_UUID_128_LEN + 1;
-        app_env.scanrsp_data[1] = GAP_AD_TYPE_MORE_128_BIT_UUID;
-        memcpy(app_env.scanrsp_data + 2, QPP_SVC_PRIVATE_UUID, ATT_UUID_128_LEN);
-        return (ATT_UUID_128_LEN + 2);
-    }
-#endif
 #if BLE_AN_SERVER
     if (len <= remain_len)
     {
@@ -1547,19 +1540,55 @@ uint8_t app_set_scan_rsp_data(uint16_t srv_flag)
         complete = false;
     }
 #endif
-    
-#if BLE_OTA_SERVER
+		
+#if BLE_QPP_SERVER
     if (len <= remain_len)
     {
-        app_env.scanrsp_data[len+0] = (uint8_t)(OTAS_SVC_PRIVATE_UUID & 0x00FF);
-        app_env.scanrsp_data[len+1] = (uint8_t)(OTAS_SVC_PRIVATE_UUID >> 8);
-        len += 2;
+				if (srv_flag & BLE_QPPS_SERVER_BIT)
+				{
+					app_env.scanrsp_data[len + 0] = (uint8_t)(QPP_SVC_PRIVATE_UUID & 0x00FF);
+					app_env.scanrsp_data[len + 1] = (uint8_t)(QPP_SVC_PRIVATE_UUID >> 8);
+					len += 2;
+				}
     }
     else
     {
         complete = false;
     }
 #endif
+    
+#if BLE_OTA_SERVER
+    if (len <= remain_len)
+    {
+        if (srv_flag & BLE_OTA_SERVER_BIT)
+        {
+					app_env.scanrsp_data[len+0] = (uint8_t)(OTAS_SVC_PRIVATE_UUID & 0x00FF);
+					app_env.scanrsp_data[len+1] = (uint8_t)(OTAS_SVC_PRIVATE_UUID >> 8);
+					len += 2;
+				}
+    }
+    else
+    {
+        complete = false;
+    }
+#endif
+
+#if FIREBLE_PT_SERVER
+    if (len <= remain_len)
+    {
+        if (srv_flag & BLE_FIREBLE_SERVER_BIT)
+        {
+					app_env.scanrsp_data[len+0] = (uint8_t)(FIREBLE_SVC_PRIVATE_UUID & 0x00FF);
+					app_env.scanrsp_data[len+1] = (uint8_t)(FIREBLE_SVC_PRIVATE_UUID >> 8);
+					len += 2;
+				}
+    }
+    else
+    {
+        complete = false;
+    }
+#endif
+
  
 // in case no profile server enable
     if (len == 2)
@@ -1580,14 +1609,18 @@ uint8_t app_set_scan_rsp_data(uint16_t srv_flag)
         app_env.scanrsp_data[1] = 0x02;
     
     // Slave connection interval range:0x12
-    app_env.scanrsp_data[len+0] = 0x05;
-    app_env.scanrsp_data[len+1] = 0x12;
-    app_env.scanrsp_data[len+2] = 0x06;
-    app_env.scanrsp_data[len+3] = 0x00;
-    app_env.scanrsp_data[len+4] = 0x80;
-    app_env.scanrsp_data[len+5] = 0x0C;
+		if (len < (31 - 6))
+		{
+			app_env.scanrsp_data[len+0] = 0x05;
+			app_env.scanrsp_data[len+1] = 0x12;
+			app_env.scanrsp_data[len+2] = 0x06;
+			app_env.scanrsp_data[len+3] = 0x00;
+			app_env.scanrsp_data[len+4] = 0x80;
+			app_env.scanrsp_data[len+5] = 0x0C;
 
-    len += 6; }
+			len += 6; 
+		}
+	}
     
     return len;
 }

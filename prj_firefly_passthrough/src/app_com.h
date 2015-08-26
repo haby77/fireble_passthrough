@@ -19,7 +19,7 @@
 
 #define COM_FRAME_TIMEOUT 3 //COM_FRAME_TIMEOUT*10ms
 
-#define QPPS_VAL_CHAR_NUM	(7)
+#define QPPS_VAL_CHAR_NUM	(3)
 #define	QPPS_VAL_CHAR_NUM_MAX	(7)
 #define COM_AT_COMM_BUF		(0xff)
 

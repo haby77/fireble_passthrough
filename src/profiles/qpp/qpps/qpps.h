@@ -43,8 +43,8 @@
  ****************************************************************************************
  */
 #define QPPS_MANDATORY_MASK             (0x000f)
-#define QPPS_RX_CHAR_UUID              "\x00\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4"
-#define QPPS_FIRST_TX_CHAR_UUID        "\x01\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4"
+#define QPPS_RX_CHAR_UUID              (0x9600)//"\x00\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4"
+#define QPPS_FIRST_TX_CHAR_UUID        (0x9601)//"\x01\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4"
 
 /*
  * MACROS
@@ -103,13 +103,15 @@ struct qpps_env_tag
  ****************************************************************************************
  */
 
-extern const struct atts_desc_ext qpps_att_db[QPPS_IDX_NB];
+extern const struct atts_desc qpps_att_db[QPPS_IDX_NB];
 
 ///  Service - only one instance for now
-extern uint8_t qpps_svc[ATT_UUID_128_LEN];
+extern const atts_svc_desc_t qpps_svc;//[ATT_UUID_128_LEN];
 
-extern const struct atts_char128_desc qpps_value_char;
-extern const struct atts_char128_desc qpps_char_rx_data;
+//extern const struct atts_char128_desc qpps_value_char;
+//extern const struct atts_char128_desc qpps_char_rx_data;
+extern const struct atts_char_desc qpps_value_char;
+extern const struct atts_char_desc qpps_char_rx_data;
 
 extern struct qpps_env_tag qpps_env;
 

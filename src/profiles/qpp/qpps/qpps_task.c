@@ -78,15 +78,22 @@
  */
  //warning: initialiing 'uint8_t *' (aka 'unsigned char *') with an expression of type 'char[17] converts between pointers to integer types with different sign
 
-uint8_t *qpp_uuid_list[] = 
+uint16_t qpp_uuid_list[] = 
 {
-    (uint8_t *)"\x01\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x02\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x03\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x04\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x05\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x06\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
-    (uint8_t *)"\x07\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x01\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x02\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x03\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x04\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x05\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x06\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+//    (uint8_t *)"\x07\x96\x12\x16\x54\x92\x75\xB5\xA2\x45\xFD\xAB\x39\xC4\x4B\xD4",
+	0x9601,
+	0x9602,
+	0x9603,
+	0x9604,
+	0x9605,
+	0x9606,
+	0x9607,
 };
 
 static int qpps_create_db_req_handler(ke_msg_id_t const msgid,
@@ -100,8 +107,8 @@ static int qpps_create_db_req_handler(ke_msg_id_t const msgid,
     uint8_t status;
     uint8_t idx_nb = 4;
     uint8_t tx_char_num = param->tx_char_num;
-    struct atts_desc_ext *qpps_db = NULL;
-    struct atts_char128_desc *char_desc_def = NULL;
+    struct atts_desc *qpps_db = NULL;
+    struct atts_char_desc *char_desc_def = NULL;
 
     if (tx_char_num > 7)
         tx_char_num = 7;
@@ -115,11 +122,11 @@ static int qpps_create_db_req_handler(ke_msg_id_t const msgid,
 
     if (tx_char_num > 1)
     {
-        qpps_db = (struct atts_desc_ext *)ke_malloc(sizeof(qpps_att_db) + 3 * (tx_char_num) * sizeof(struct atts_desc_ext));
-        char_desc_def = (struct atts_char128_desc *)ke_malloc((tx_char_num) * sizeof(struct atts_char128_desc));
+        qpps_db = (struct atts_desc *)ke_malloc(sizeof(qpps_att_db) + 3 * (tx_char_num) * sizeof(struct atts_desc));
+        char_desc_def = (struct atts_char_desc *)ke_malloc((tx_char_num) * sizeof(struct atts_char_desc));
         for (uint8_t i = 0; i < tx_char_num; i++)
         {
-            struct atts_char128_desc value_char = ATTS_CHAR128(ATT_CHAR_PROP_NTF,
+            struct atts_char_desc value_char = ATTS_CHAR(ATT_CHAR_PROP_NTF,
                                                                 0,
                                                             QPPS_FIRST_TX_CHAR_UUID);
             
@@ -134,7 +141,7 @@ static int qpps_create_db_req_handler(ke_msg_id_t const msgid,
             qpps_db[QPPS_IDX_VAL_CHAR + i * 3] = qpps_db[QPPS_IDX_VAL_CHAR];
             qpps_db[QPPS_IDX_VAL_CHAR + i * 3].value = (uint8_t*)&char_desc_def[i];
             qpps_db[QPPS_IDX_VAL_CHAR + i * 3 + 1] = qpps_db[QPPS_IDX_VAL];
-            qpps_db[QPPS_IDX_VAL_CHAR + i * 3 + 1].type.uuid = qpp_uuid_list[i];
+            qpps_db[QPPS_IDX_VAL_CHAR + i * 3 + 1].uuid = qpp_uuid_list[i];
             qpps_db[QPPS_IDX_VAL_CHAR + i * 3 + 2] = qpps_db[QPPS_IDX_VAL + 1];
         }
     }
@@ -145,7 +152,7 @@ static int qpps_create_db_req_handler(ke_msg_id_t const msgid,
         idx_nb += 3;
     }
     //Add Service Into Database
-    status = atts_svc_create_db_ext(&qpps_env.shdl, (uint8_t *)&cfg_flag, idx_nb, NULL,
+    status = atts_svc_create_db(&qpps_env.shdl, (uint8_t *)&cfg_flag, idx_nb, NULL,
                                dest_id, (param->tx_char_num <= 1 ? &qpps_att_db[0] : &qpps_db[0]));
 
     if (qpps_db != NULL)

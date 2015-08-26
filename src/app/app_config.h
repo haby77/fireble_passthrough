@@ -712,8 +712,10 @@
 		#if defined(CFG_PRF_FIREBLE)
 			#define TASK_FIREBLE 		  CFG_TASK_FIREBLE 
 			#define FIREBLE _DB_SIZE		  700
+			#define FIREBLE_PT_SERVER			1
 		#else
 			#define FIREBLE _DB_SIZE		  0
+			#define FIREBLE_PT_SERVER			0
 		#endif 
 
 #elif (BLE_OBSERVER || BLE_BROADCASTER)

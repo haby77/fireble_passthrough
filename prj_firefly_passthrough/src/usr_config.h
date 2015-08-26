@@ -167,8 +167,8 @@
 // #define CFG_TASK_DISC   TASK_PRF1
 
 ///Device Information Service Server Role
-//#define CFG_PRF_DISS
-//#define CFG_TASK_DISS   TASK_PRF2
+#define CFG_PRF_DISS
+#define CFG_TASK_DISS   TASK_PRF2
 
 ///Blood Pressure Profile Collector Role
 // #define CFG_PRF_BLPC

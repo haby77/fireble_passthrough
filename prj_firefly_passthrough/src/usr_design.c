@@ -57,7 +57,7 @@
 
 
 ///IOS Connection Parameter
-#define IOS_CONN_INTV_MAX                              0x0060
+#define IOS_CONN_INTV_MAX                              0x0012
 #define IOS_CONN_INTV_MIN                              0x0008
 #define IOS_SLAVE_LATENCY                              0x0000
 #define IOS_STO_MULT                                   0x012c

@@ -25,23 +25,24 @@
  ****************************************************************************************
  */
 // Service setup FLAG
-#define BLE_HT_THERMOM_BIT          0x0001
-#define BLE_BP_SENSOR_BIT           0x0002
-#define BLE_HR_SENSOR_BIT           0x0004
-#define BLE_GL_SENSOR_BIT           0x0008
-#define BLE_FINDME_TARGET_BIT       0x0010
-#define BLE_TIP_SERVER_BIT          0x0020
-#define BLE_SP_SERVER_BIT           0x0040
-#define BLE_HID_DEVICE_BIT          0x0080
-#define BLE_PROX_REPORTER_BIT       0x0100
-#define BLE_DIS_SERVER_BIT          0x0200
-#define BLE_BATT_SERVER_BIT         0x0400
-#define BLE_CSCP_SERVER_BIT         0x0800
-#define BLE_PASP_SERVER_BIT         0x1000
-#define BLE_AN_SERVER_BIT           0x2000
-#define BLE_RSCP_SERVER_BIT         0x4000
-#define BLE_QPPS_SERVER_BIT         0x8000
-#define BLE_FIREBLE_SERVER_BIT      0x8000
+#define BLE_HT_THERMOM_BIT          0x00000001
+#define BLE_BP_SENSOR_BIT           0x00000002
+#define BLE_HR_SENSOR_BIT           0x00000004
+#define BLE_GL_SENSOR_BIT           0x00000008
+#define BLE_FINDME_TARGET_BIT       0x00000010
+#define BLE_TIP_SERVER_BIT          0x00000020
+#define BLE_SP_SERVER_BIT           0x00000040
+#define BLE_HID_DEVICE_BIT          0x00000080
+#define BLE_PROX_REPORTER_BIT       0x00000100
+#define BLE_DIS_SERVER_BIT          0x00000200
+#define BLE_BATT_SERVER_BIT         0x00000400
+#define BLE_CSCP_SERVER_BIT         0x00000800
+#define BLE_PASP_SERVER_BIT         0x00001000
+#define BLE_AN_SERVER_BIT           0x00002000
+#define BLE_RSCP_SERVER_BIT         0x00004000
+#define BLE_QPPS_SERVER_BIT         0x00008000
+#define BLE_OTA_SERVER_BIT					0x00010000
+#define BLE_FIREBLE_SERVER_BIT      0x00020000
 // Advertising data FLAG
 #define AD_TYPE_NAME_BIT            0x0001
 #define AD_TYPE_16bitUUID_BIT       0x0002
@@ -210,7 +211,7 @@ void app_init_local_smp_key(void);
  *
  ****************************************************************************************
  */
-uint16_t app_get_local_service_flag(void);
+uint32_t app_get_local_service_flag(void);
 
 /*
  ****************************************************************************************
@@ -218,7 +219,7 @@ uint16_t app_get_local_service_flag(void);
  *
  ****************************************************************************************
  */
-void app_clear_local_service_flag(uint16_t srv_bit);
+void app_clear_local_service_flag(uint32_t srv_bit);
 
 /*
  ****************************************************************************************
@@ -306,7 +307,7 @@ uint8_t app_set_adv_data(uint16_t disc_mode);
  *
  ****************************************************************************************
  */
-uint8_t app_set_scan_rsp_data(uint16_t srv_flag);
+uint8_t app_set_scan_rsp_data(uint32_t srv_flag);
 
 /*
  ****************************************************************************************
